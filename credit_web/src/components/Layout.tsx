@@ -2,16 +2,21 @@ import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface LayoutProps {
+  children: React.ReactNode;
+  fullScreen?: boolean;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children, fullScreen = false }) => {
   return (
     <>
       <Header />
-      <main style={{ paddingTop: 'var(--header-h)' }}>
-        <div className="page-enter">
+      <main style={fullScreen ? {} : { paddingTop: 'var(--header-h)' }}>
+        <div className="page-enter" style={fullScreen ? { height: '100vh', overflow: 'hidden' } : {}}>
           {children}
         </div>
       </main>
-      <Footer />
+      {!fullScreen && <Footer />}
     </>
   );
 };
