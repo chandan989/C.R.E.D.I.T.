@@ -1,0 +1,22 @@
+{
+  "name": "oracle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@bnb-chain/greenfield-js-sdk": "^2.2.2",
+    "@bnb-chain/reed-solomon": "^1.1.4",
+    "@types/node": "^25.5.0",
+    "dotenv": "^17.3.1",
+    "ethers": "^6.16.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  }
+}

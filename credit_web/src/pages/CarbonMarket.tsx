@@ -1,10 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { X } from 'lucide-react';
+import { ethers } from 'ethers';
 import Layout from '../components/Layout';
 import BentoCard from '../components/BentoCard';
 import ContractHash from '../components/ContractHash';
 import ProgressRhombus from '../components/ProgressRhombus';
 import { vccListings, VCCListing } from '../data/mockTokens';
+
+const MARKET_ADDRESS = "0xeECdc827FB6BbA0EddE9f9d3c641870c0CA8e2Ab";
+const MARKET_ABI = [
+  "function buyVCC(uint256 tokenId, uint256 amountToBuy) external payable"
+];
 
 const CarbonMarket: React.FC = () => {
   const [region, setRegion] = useState('all');
@@ -14,6 +20,35 @@ const CarbonMarket: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<VCCListing | null>(null);
   const [showCount, setShowCount] = useState(9);
+  const [txStatus, setTxStatus] = useState<string>('');
+
+  const acquireCredit = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { ethereum } = window as any;
+    if (!ethereum) return alert("Please connect your wallet top right first.");
+    
+    try {
+      setTxStatus('Awaiting Signature...');
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+      const marketContract = new ethers.Contract(MARKET_ADDRESS, MARKET_ABI, signer);
+
+      // MVP Note: Forcing Token ID 1 and price 0.01 BNB which matches our listed Oracle token
+      const price = ethers.parseEther("0.01"); 
+      const tx = await marketContract.buyVCC(1, 1, { value: price });
+      
+      setTxStatus('Confirming Block...');
+      await tx.wait();
+      
+      setTxStatus('');
+      alert("🎉 Carbon Credit Verified and Transferred to your Wallet! View on BSCScan.");
+    } catch (err: any) {
+      console.error(err);
+      setTxStatus('');
+      alert("Transaction Failed: " + (err.reason || err.message));
+    }
+  };
+
 
   const filtered = useMemo(() => {
     let items = [...vccListings];
@@ -77,7 +112,9 @@ const CarbonMarket: React.FC = () => {
               </div>
               <ContractHash hash={item.contractHash} />
               <div style={{ marginTop: 16 }}>
-                <button className="btn-protocol btn-sm" onClick={e => { e.stopPropagation(); }}>Acquire Credit</button>
+                <button className="btn-protocol btn-sm" onClick={acquireCredit} disabled={!!txStatus}>
+                  {txStatus || 'Acquire Credit'}
+                </button>
               </div>
             </BentoCard>
           ))}
@@ -119,7 +156,9 @@ const CarbonMarket: React.FC = () => {
             </div>
 
             <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-              <button className="btn-protocol">Acquire Credit</button>
+              <button className="btn-protocol" onClick={acquireCredit} disabled={!!txStatus}>
+                {txStatus || 'Acquire Credit'}
+              </button>
               <button className="btn-secondary">Audit on Greenfield</button>
             </div>
           </div>

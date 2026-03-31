@@ -357,6 +357,11 @@ The repository is organised into clearly separated modules to make navigation st
 
 CREDIT supports deployment to two environments. The **BNB Testnet** is the recommended starting point for all development, integration testing, and staging workflows. It provides a realistic BNB Chain environment with test tokens, connected to a CREDIT-operated testnet Greenfield instance. The **BNB Mainnet** is the production environment for live protocol deployments. All network-specific parameters — RPC endpoint URLs, deployed contract addresses, Greenfield bucket identifiers, oracle relay endpoints, and treasury addresses — are managed through environment variables, documented in the included `.env.example` file.
 
+#### BSC Testnet Deployed Contracts (Hackathon MVP)
+- **VCC (Carbon Credits, ERC-1155):** `0x53fa7BA2D2031EbD6Cc8E15FF927bE8D61ab5B85`
+- **ACFC (Forward Contracts, ERC-721):** `0x9E9203c594571657d43e494F911E94BA1c08Fd22`
+- **Marketplace (Protocol Treasury):** `0xeECdc827FB6BbA0EddE9f9d3c641870c0CA8e2Ab`
+
 Full step-by-step setup instructions, including how to obtain testnet tokens, how to configure Greenfield credentials, and how to run the local oracle relay in development mode, are in the repository wiki.
 
 ---
