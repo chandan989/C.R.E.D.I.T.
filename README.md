@@ -1,12 +1,16 @@
-# CREDIT — Carbon & Regenerative Ecological Derivatives Investment Token
+<div align="center">
+
+# C.R.E.D.I.T. — Carbon & Regenerative Ecological Derivatives Investment Token
 
 [![Chain: BNB Chain](https://img.shields.io/badge/Chain-BNB_Chain-F3BA2F?style=for-the-badge&logo=binance-smart-chain&logoColor=white)](https://www.bnbchain.org/)
 [![Storage: BNB Greenfield](https://img.shields.io/badge/Storage-BNB_Greenfield-00baad?style=for-the-badge)](https://greenfield.bnbchain.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
----
+<img src="Logo.svg" alt="CREDIT Logo" width="150">
 
-> *Financing the future of the planet — one acre at a time.*
+*Financing the future of the planet — one acre at a time.*
+
+</div>
 
 ---
 
