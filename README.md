@@ -79,21 +79,6 @@ forge script script/DeployCREDIT.s.sol --rpc-url $BNB_TESTNET_RPC --broadcast
 
 ---
 
-## 🗺 Roadmap
-
-- [x] **Q1 2026:** Alpha Launch (Cotton & Rice pilots in Andhra Pradesh, India).
-- [ ] **Q2 2026:** Integration with **Chainlink Functions** for real-time soil carbon monitoring.
-- [ ] **Q3 2026:** Launch of the **CREDIT Secondary Marketplace** for institutional trading.
-- [ ] **Q4 2026:** Expansion into SEA markets (Vietnam/Indonesia coffee trade).
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from developers, agronomists, and climate scientists. Please see `CONTRIBUTING.md` for our "Code of Conduct" and submittal process.
-
----
-
 ## ⚖️ License
 
 Distributed under the MIT License. See `LICENSE` for more information.

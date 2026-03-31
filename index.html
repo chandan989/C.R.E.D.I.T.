@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarSeed ✨ | ReFi for the Future</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 2. Color Palette & Variables --- */
+        :root {
+            --supernova-white: #FFFFFF;
+            --hyper-mint: #00D180;
+            --hyper-mint-20: rgba(0, 209, 128, 0.2);
+            --stardust-lilac: #D1A3FF;
+            --nebula-pink: #FF99CC;
+            --midnight-void: #111111;
+
+            /* Typography Variables */
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-data: 'Space Mono', monospace;
+        }
+
+        /* --- Global Reset & Base Styles --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--supernova-white);
+            color: var(--midnight-void);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, .big-number {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .hash-text {
+            font-family: var(--font-data);
+            font-size: 0.85rem;
+            color: #555;
+            word-break: break-all;
+        }
+
+        /* --- Navbar --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 3rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* The Pinwheel Logo / Loader */
+        .pinwheel {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            animation: spin 8s linear infinite;
+        }
+
+        .pinwheel-loading {
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .rhombus {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--hyper-mint);
+            transform: rotate(45deg);
+            border-radius: 2px;
+        }
+
+        .r1 { top: 0; left: 10px; }
+        .r2 { bottom: 0; left: 10px; }
+        .r3 { left: 0; top: 10px; }
+        .r4 { right: 0; top: 10px; }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- 5A. Buttons --- */
+        .btn-primary {
+            background-color: var(--hyper-mint);
+            color: var(--supernova-white);
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 50px; /* Pill-shaped */
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05); /* Bouncy 5% scale */
+            box-shadow: 0 10px 25px -5px var(--stardust-lilac); /* Lilac Glow */
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #444;
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+        }
+
+        /* --- 5B. Bento Box Grid --- */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            padding-bottom: 4rem;
+        }
+
+        .bento-card {
+            background-color: var(--supernova-white);
+            border: 1px solid var(--hyper-mint-20);
+            border-radius: 32px; /* Super-smooth Squircle approximation */
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .big-number {
+            font-size: 3rem;
+            color: var(--hyper-mint);
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- Gamified Progress Bar --- */
+        .progress-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .progress-rhombus {
+            width: 16px;
+            height: 16px;
+            background-color: #eee;
+            transform: rotate(45deg);
+            border-radius: 3px;
+            transition: background-color 0.3s ease;
+        }
+
+        .progress-rhombus.active {
+            background-color: var(--hyper-mint);
+            box-shadow: 0 0 10px var(--hyper-mint-20);
+        }
+
+        /* --- Fun Little Stickers/Tags --- */
+        .sticker {
+            display: inline-block;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Confetti Animation Class */
+        .confetti-burst {
+            animation: pulse-pink 0.5s ease-out;
+        }
+
+        @keyframes pulse-pink {
+            0% { box-shadow: 0 0 0 0 var(--nebula-pink); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 153, 204, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 153, 204, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .bento-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-container">
+            <div class="pinwheel" id="main-logo">
+                <div class="rhombus r1"></div>
+                <div class="rhombus r2"></div>
+                <div class="rhombus r3"></div>
+                <div class="rhombus r4"></div>
+            </div>
+            StarSeed
+        </div>
+        <button class="btn-primary" onclick="simulateConnection()">Plug into the Protocol</button>
+    </nav>
+
+    <header class="hero">
+        <h1>Level Up the Planet.</h1>
+        <p>Your soil is thriving! We're making climate action and smallholder farming the ultimate high-score game.</p>
+        <a href="#" class="btn-primary" style="font-size: 1.25rem; padding: 16px 36px;">
+            Collect Carbon Stars ✨
+        </a>
+    </header>
+
+    <main class="bento-grid">
+
+        <div class="bento-card">
+            <div class="sticker">VCC Glossy</div>
+            <h3 class="card-title">Global Impact</h3>
+            <div class="big-number">1,200</div>
+            <p style="font-family: var(--font-heading); font-size: 1.2rem;">Tons of CO2 Sequestered</p>
+        </div>
+
+        <div class="bento-card" id="oracle-card">
+            <h3 class="card-title">
+                Yield Check: Passed ✅
+            </h3>
+            <p>12 new tokens unlocked for zero-tillage farming.</p>
+
+            <div class="progress-container" style="margin-top: 2rem;">
+                <div class="progress-rhombus active"></div>
+                <div class="progress-rhombus active"></div>
+                <div class="progress-rhombus active"></div>
+                <div class="progress-rhombus active"></div>
+                <div class="progress-rhombus active"></div>
+                <div class="progress-rhombus"></div>
+                <div class="progress-rhombus"></div>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #888;">Next milestone: 5 more verified steps.</p>
+        </div>
+
+        <div class="bento-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; justify-content: center;">
+            <h3 class="card-title">BNB Greenfield Ledger <span style="color: var(--nebula-pink);">✨</span></h3>
+            <p style="margin-bottom: 8px;">Latest Contract Sync</p>
+            <div class="hash-text">
+                0x71C7656EC7ab88b098defB751B7401B5f6d8976F... <br>
+                Status: Verified on-chain.
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        function simulateConnection() {
+            const logo = document.getElementById('main-logo');
+            const oracleCard = document.getElementById('oracle-card');
+            const btn = document.querySelector('.btn-primary');
+
+            // Trigger the "fetching data" loader speed
+            logo.classList.add('pinwheel-loading');
+            btn.innerText = "Syncing Protocol...";
+
+            setTimeout(() => {
+                // Return to normal
+                logo.classList.remove('pinwheel-loading');
+                btn.innerText = "Plug into the Protocol";
+
+                // Trigger the Nebula Pink success state on the bento card
+                oracleCard.classList.add('confetti-burst');
+                setTimeout(() => oracleCard.classList.remove('confetti-burst'), 600);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
