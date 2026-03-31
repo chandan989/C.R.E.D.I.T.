@@ -1,31 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StarSeed ✨ | ReFi for the Future</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap" rel="stylesheet">
-
+    <title>C.R.E.D.I.T. | The Transparent Ledger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Mono&display=swap"
+        rel="stylesheet">
     <style>
-        /* --- 2. Color Palette & Variables --- */
         :root {
-            --supernova-white: #FFFFFF;
-            --hyper-mint: #00D180;
-            --hyper-mint-20: rgba(0, 209, 128, 0.2);
-            --stardust-lilac: #D1A3FF;
-            --nebula-pink: #FF99CC;
-            --midnight-void: #111111;
-
-            /* Typography Variables */
-            --font-heading: 'Space Grotesk', sans-serif;
-            --font-body: 'Plus Jakarta Sans', sans-serif;
-            --font-data: 'Space Mono', monospace;
+            --regen-emerald: #0EDC7A;
+            --oracle-slate: #1A1D20;
+            --data-mint: rgba(0, 230, 118, 0.08);
+            --slate-60: rgba(26, 29, 32, 0.6);
+            --grid-dot: #e2e8f0;
         }
 
-        /* --- Global Reset & Base Styles --- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -33,291 +23,307 @@
         }
 
         body {
-            background-color: var(--supernova-white);
-            color: var(--midnight-void);
-            font-family: var(--font-body);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            padding: 2rem;
+            background-color: #FFFFFF;
+            background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+            background-size: 24px 24px;
+            font-family: 'Inter', sans-serif;
+            color: var(--oracle-slate);
+            line-height: 1.5;
+            padding-top: 80px;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1,
+        h2,
+        h3 {
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .mono {
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 32px;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 32px;
         }
 
-        h1, h2, h3, .big-number {
-            font-family: var(--font-heading);
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .hash-text {
-            font-family: var(--font-data);
-            font-size: 0.85rem;
-            color: #555;
-            word-break: break-all;
-        }
-
-        /* --- Navbar --- */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 3rem;
-        }
-
-        .logo-container {
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--oracle-slate);
+            z-index: 100;
+            height: 70px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-family: var(--font-heading);
-            font-size: 1.5rem;
-            font-weight: 700;
         }
 
-        /* The Pinwheel Logo / Loader */
-        .pinwheel {
+        /* --- COMPONENTS --- */
+
+        /* Bento Cards */
+        .card {
+            background: white;
+            border: 1px solid var(--oracle-slate);
+            border-radius: 8px;
             position: relative;
-            width: 32px;
-            height: 32px;
-            animation: spin 8s linear infinite;
+            box-shadow: 4px 4px 0px rgba(26, 29, 32, 0.05);
+            transition: transform 0.2s ease;
+            overflow: hidden;
         }
 
-        .pinwheel-loading {
-            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        .card-header-accent {
+            height: 4px;
+            width: 100%;
+            background: var(--regen-emerald);
         }
 
-        .rhombus {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: var(--hyper-mint);
-            transform: rotate(45deg);
-            border-radius: 2px;
+        .card-content {
+            padding: 24px;
         }
 
-        .r1 { top: 0; left: 10px; }
-        .r2 { bottom: 0; left: 10px; }
-        .r3 { left: 0; top: 10px; }
-        .r4 { right: 0; top: 10px; }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
+        .metric {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 8px 0;
         }
 
-        /* --- 5A. Buttons --- */
+        /* Micro-Labels */
+        .micro-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            padding: 2px 6px;
+            border: 1px solid var(--oracle-slate);
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        /* Protocol Buttons */
         .btn-primary {
-            background-color: var(--hyper-mint);
-            color: var(--supernova-white);
-            font-family: var(--font-heading);
-            font-size: 1rem;
-            font-weight: 700;
-            padding: 12px 28px;
-            border: none;
-            border-radius: 50px; /* Pill-shaped */
+            background: var(--regen-emerald);
+            color: var(--oracle-slate);
+            border: 1px solid var(--oracle-slate);
+            padding: 14px 28px;
+            font-family: 'Space Mono', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            position: relative;
+            transition: all 0.1s ease;
+            display: inline-block;
             text-decoration: none;
+            font-size: 14px;
         }
 
         .btn-primary:hover {
-            transform: scale(1.05); /* Bouncy 5% scale */
-            box-shadow: 0 10px 25px -5px var(--stardust-lilac); /* Lilac Glow */
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px var(--oracle-slate);
         }
 
-        /* --- Hero Section --- */
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-            margin-bottom: 2rem;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            letter-spacing: -1px;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: #444;
-            max-width: 600px;
-            margin: 0 auto 2rem auto;
-        }
-
-        /* --- 5B. Bento Box Grid --- */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            padding-bottom: 4rem;
-        }
-
-        .bento-card {
-            background-color: var(--supernova-white);
-            border: 1px solid var(--hyper-mint-20);
-            border-radius: 32px; /* Super-smooth Squircle approximation */
-            padding: 32px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s ease;
-        }
-
-        .bento-card:hover {
-            transform: translateY(-4px);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: #666;
+        /* Logo Pulse Animation */
+        .logo-container {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 4px;
         }
 
-        .big-number {
-            font-size: 3rem;
-            color: var(--hyper-mint);
-            margin-bottom: 0.5rem;
-        }
-
-        /* --- Gamified Progress Bar --- */
-        .progress-container {
-            display: flex;
-            gap: 8px;
-            margin-top: 1rem;
-        }
-
-        .progress-rhombus {
-            width: 16px;
-            height: 16px;
-            background-color: #eee;
+        .rhombus {
+            width: 12px;
+            height: 12px;
+            background: var(--regen-emerald);
             transform: rotate(45deg);
-            border-radius: 3px;
-            transition: background-color 0.3s ease;
+            opacity: 0.3;
         }
 
-        .progress-rhombus.active {
-            background-color: var(--hyper-mint);
-            box-shadow: 0 0 10px var(--hyper-mint-20);
+        .pulse {
+            animation: pulse-step 1.5s infinite;
         }
 
-        /* --- Fun Little Stickers/Tags --- */
-        .sticker {
-            display: inline-block;
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            border: 1px solid rgba(255,255,255,0.8);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            backdrop-filter: blur(4px);
+        @keyframes pulse-step {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
-        /* Confetti Animation Class */
-        .confetti-burst {
-            animation: pulse-pink 0.5s ease-out;
+        .p1 {
+            animation-delay: 0s;
         }
 
-        @keyframes pulse-pink {
-            0% { box-shadow: 0 0 0 0 var(--nebula-pink); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 153, 204, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 153, 204, 0); }
+        .p2 {
+            animation-delay: 0.375s;
         }
 
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .bento-grid { grid-template-columns: 1fr; }
+        .p3 {
+            animation-delay: 0.75s;
+        }
+
+        .p4 {
+            animation-delay: 1.125s;
+        }
+
+        /* --- SECTIONS --- */
+        .hero {
+            grid-column: span 12;
+            padding: 60px 0;
+        }
+
+        .col-8 {
+            grid-column: span 8;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        .contract-hash {
+            background: transparent;
+            padding: 4px;
+            border-radius: 4px;
+            cursor: copy;
+            transition: background 0.2s;
+        }
+
+        .contract-hash:hover {
+            background: var(--data-mint);
+            color: var(--regen-emerald);
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .rhombus-step {
+            width: 10px;
+            height: 10px;
+            border: 1px solid var(--oracle-slate);
+            transform: rotate(45deg);
+        }
+
+        .rhombus-step.active {
+            background: var(--regen-emerald);
+            border-color: var(--regen-emerald);
+            box-shadow: 0 0 8px var(--regen-emerald);
         }
     </style>
 </head>
+
 <body>
 
-    <nav>
-        <div class="logo-container">
-            <div class="pinwheel" id="main-logo">
-                <div class="rhombus r1"></div>
-                <div class="rhombus r2"></div>
-                <div class="rhombus r3"></div>
-                <div class="rhombus r4"></div>
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="logo-container">
+                    <div class="rhombus pulse p1"></div>
+                    <div class="rhombus pulse p2"></div>
+                    <div class="rhombus pulse p3"></div>
+                    <div class="rhombus pulse p4"></div>
+                </div>
+                <span class="mono" style="font-weight: bold; letter-spacing: 2px;">C.R.E.D.I.T.</span>
             </div>
-            StarSeed
+            <nav class="mono" style="font-size: 12px; display: flex; gap: 24px;">
+                <a href="#" style="color: var(--oracle-slate); text-decoration: none;">Terminal</a>
+                <a href="#" style="color: var(--oracle-slate); text-decoration: none;">Oracles</a>
+                <a href="#" style="color: var(--oracle-slate); text-decoration: none;">Governance</a>
+            </nav>
         </div>
-        <button class="btn-primary" onclick="simulateConnection()">Plug into the Protocol</button>
-    </nav>
-
-    <header class="hero">
-        <h1>Level Up the Planet.</h1>
-        <p>Your soil is thriving! We're making climate action and smallholder farming the ultimate high-score game.</p>
-        <a href="#" class="btn-primary" style="font-size: 1.25rem; padding: 16px 36px;">
-            Collect Carbon Stars ✨
-        </a>
     </header>
 
-    <main class="bento-grid">
+    <main class="container">
 
-        <div class="bento-card">
-            <div class="sticker">VCC Glossy</div>
-            <h3 class="card-title">Global Impact</h3>
-            <div class="big-number">1,200</div>
-            <p style="font-family: var(--font-heading); font-size: 1.2rem;">Tons of CO2 Sequestered</p>
-        </div>
+        <section class="hero">
+            <div class="micro-label">PROTOCOL STATUS: OPERATIONAL</div>
+            <h1 style="font-size: 4rem; margin-bottom: 24px; max-width: 800px;">
+                Institutional Ecological <br><span style="color: var(--regen-emerald)">Asset Verification.</span>
+            </h1>
+            <p style="max-width: 600px; margin-bottom: 32px; color: var(--slate-60);">
+                Deploying high-fidelity dMRV data points to anchor carbon sequestration projects onto the transparent
+                ledger. Real-time verification for the regenerative economy.
+            </p>
+            <a href="#" class="btn-primary">SYNC ORACLE</a>
+        </section>
 
-        <div class="bento-card" id="oracle-card">
-            <h3 class="card-title">
-                Yield Check: Passed ✅
-            </h3>
-            <p>12 new tokens unlocked for zero-tillage farming.</p>
-
-            <div class="progress-container" style="margin-top: 2rem;">
-                <div class="progress-rhombus active"></div>
-                <div class="progress-rhombus active"></div>
-                <div class="progress-rhombus active"></div>
-                <div class="progress-rhombus active"></div>
-                <div class="progress-rhombus active"></div>
-                <div class="progress-rhombus"></div>
-                <div class="progress-rhombus"></div>
+        <div class="card col-8">
+            <div class="card-header-accent"></div>
+            <div class="card-content">
+                <div class="micro-label">LIVE FEED: AMAZON BASIN / PROJECT_77</div>
+                <h3 class="mono" style="font-size: 12px; color: var(--slate-60);">Current Sequestration Rate</h3>
+                <div class="metric">14,280.42 <span style="font-size: 1rem; color: var(--slate-60);">TONS CO2e</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="rhombus-step active"></div>
+                    <div class="rhombus-step active"></div>
+                    <div class="rhombus-step active"></div>
+                    <div class="rhombus-step"></div>
+                    <div class="rhombus-step"></div>
+                    <span class="mono" style="font-size: 10px; margin-left: 10px;">Phase: Verification Tier III</span>
+                </div>
             </div>
-            <p style="margin-top: 1rem; font-size: 0.9rem; color: #888;">Next milestone: 5 more verified steps.</p>
         </div>
 
-        <div class="bento-card" style="grid-column: 1 / -1; display: flex; flex-direction: column; justify-content: center;">
-            <h3 class="card-title">BNB Greenfield Ledger <span style="color: var(--nebula-pink);">✨</span></h3>
-            <p style="margin-bottom: 8px;">Latest Contract Sync</p>
-            <div class="hash-text">
-                0x71C7656EC7ab88b098defB751B7401B5f6d8976F... <br>
-                Status: Verified on-chain.
+        <div class="card col-4" style="background: var(--data-mint);">
+            <div class="card-header-accent"></div>
+            <div class="card-content">
+                <div class="micro-label">VCC STATUS: ISSUED</div>
+                <h3 class="mono" style="font-size: 12px;">Protocol Trust Score</h3>
+                <div class="metric">99.8%</div>
+                <p class="mono" style="font-size: 10px; margin-top: 10px;">
+                    ZK-PROOF HASH: <br>
+                    <span class="contract-hash">0x71C...8f2e44</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="card col-4">
+            <div class="card-header-accent"></div>
+            <div class="card-content">
+                <div class="micro-label">NETWORK NODES</div>
+                <div class="metric">1,204</div>
+                <p style="color: var(--slate-60); font-size: 14px;">Active IoT sensors providing real-time ground truth.
+                </p>
+            </div>
+        </div>
+
+        <div class="card col-8">
+            <div class="card-header-accent" style="background: var(--oracle-slate);"></div>
+            <div class="card-content" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 class="mono" style="font-size: 14px;">MINT VOLUNTARY CARBON CREDITS</h3>
+                    <p style="color: var(--slate-60); font-size: 14px;">Convert verified data into institutional-grade
+                        assets.</p>
+                </div>
+                <a href="#" class="btn-primary">MINT VCC</a>
             </div>
         </div>
 
     </main>
 
-    <script>
-        function simulateConnection() {
-            const logo = document.getElementById('main-logo');
-            const oracleCard = document.getElementById('oracle-card');
-            const btn = document.querySelector('.btn-primary');
+    <footer class="container"
+        style="margin-top: 80px; padding-bottom: 40px; border-top: 1px solid var(--grid-dot); pt-40px">
+        <div class="col-12"
+            style="padding-top: 40px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="mono" style="font-size: 10px; color: var(--slate-60);">© 2024 C.R.E.D.I.T. PROTOCOL |
+                HIGH-FIDELITY DMRV</span>
+            <div class="mono" style="font-size: 10px; color: var(--slate-60);">LAT: -3.4653 / LONG: -62.2159</div>
+        </div>
+    </footer>
 
-            // Trigger the "fetching data" loader speed
-            logo.classList.add('pinwheel-loading');
-            btn.innerText = "Syncing Protocol...";
-
-            setTimeout(() => {
-                // Return to normal
-                logo.classList.remove('pinwheel-loading');
-                btn.innerText = "Plug into the Protocol";
-
-                // Trigger the Nebula Pink success state on the bento card
-                oracleCard.classList.add('confetti-burst');
-                setTimeout(() => oracleCard.classList.remove('confetti-burst'), 600);
-            }, 2000);
-        }
-    </script>
 </body>
+
 </html>
