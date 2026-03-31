@@ -198,7 +198,6 @@ graph TB
         direction LR
         TM["Token Minting\nERC-1155 / ERC-721"]
         DEX["DEX Listings\n& Swaps"]
-        GOV["Governance\n& Staking"]
     end
 
     subgraph L2["Layer 2 — Storage · BNB Greenfield"]
@@ -300,7 +299,7 @@ The full lifecycle of a CREDIT token — from a real-world agricultural event to
 
 ## Tokenomics
 
-**$CREDIT** is the native utility and governance token of the protocol. It is not a speculative instrument bolted on for fundraising purposes — it is the connective tissue that aligns the economic incentives of farmers, investors, oracle operators, and governance participants toward the same long-term outcome.
+**$CREDIT** is the native utility token of the protocol. It is not a speculative instrument bolted on for fundraising purposes — it is the connective tissue that aligns the economic incentives of farmers, investors, and oracle operators toward the same long-term outcome.
 
 ### Token Flow Overview
 
@@ -313,36 +312,6 @@ flowchart TD
     FEE --> D2["25% → Climate\nInsurance Treasury"]
 
     D2 --> INS["🌧️ Disaster Claims\nAutomatically settled\nby smart contract"]
-
-    STAKE["🗳️ Validators stake\n$CREDIT in DAO"] --> VALID["Validate edge-case\nagricultural claims"]
-    VALID -->|Honest vote| RWD["Earn staking\nrewards"]
-    VALID -->|Dishonest vote| SLASH["Stake\nslashed"]
-
-    HOLD["💼 Hold $CREDIT"] --> DISC["25% discount on\nall protocol fees"]
-```
-
-### Validator Staking and the Validator DAO
-
-Token holders who stake $CREDIT gain the ability to participate in the **Validator DAO** — the decentralised governance body responsible for adjudicating edge cases in the verification pipeline that automated systems alone cannot reliably resolve.
-
-The oracle network will occasionally encounter ambiguous or disputed situations: satellite imagery obscured by persistent cloud cover, sensor readings that conflict with auditor assessments, or novel farming practices not yet covered by the existing Regen-Standard methodology. In these cases, the DAO is convened to reach a determination through a structured, stake-weighted vote.
-
-Validators put their $CREDIT stake on the line when they vote. Those who vote honestly and in alignment with outcomes that are later confirmed as accurate earn staking rewards proportional to their participation. Those who vote in bad faith or consistently against outcomes that are validated over time see a portion of their stake slashed. This mechanism — borrowed from Ethereum's proof-of-stake design and refined for the CREDIT use case — ensures that participation in governance carries genuine accountability, not just the right to an opinion.
-
-#### DAO Dispute Resolution Flow
-
-```mermaid
-flowchart TD
-    ORC["Oracle flags\nambiguous / disputed data"]
-    ORC --> DAO{"DAO Vote\nInitiated"}
-    DAO --> V1["Validators review\nevidence"]
-    V1 --> VOTE["Stake-weighted\nvote cast"]
-    VOTE --> RESULT{Outcome}
-    RESULT -->|"Majority: Valid"| MINT["✅ Token Minted\nValidators rewarded"]
-    RESULT -->|"Majority: Invalid"| REJECT["❌ Mint Rejected\nValidators rewarded"]
-    RESULT -->|"No majority\n(contested)"| APPEAL["Appeal to\nsenior auditor panel"]
-    APPEAL --> FINAL["Final binding\ndetermination"]
-    FINAL --> MINT2["✅ / ❌ Outcome\nexecuted on-chain"]
 ```
 
 ### Protocol Fee Discounts
@@ -374,7 +343,7 @@ To deploy, test, or build integrations on top of the CREDIT protocol, you will n
 ```mermaid
 graph TD
     ROOT["📁 credit-protocol/"]
-    ROOT --> SRC["📁 src/\nSolidity contracts\n(VCC, ACFC, Treasury, DAO)"]
+    ROOT --> SRC["📁 src/\nSolidity contracts\n(VCC, ACFC, Treasury)"]
     ROOT --> TEST["📁 test/\nFoundry test suites"]
     ROOT --> SCRIPT["📁 script/\nDeployment scripts\n(testnet & mainnet)"]
     ROOT --> ORACLE["📁 oracle/\nTypeScript oracle relay service\n(ingestion, ZK, Greenfield)"]
@@ -396,8 +365,8 @@ Full step-by-step setup instructions, including how to obtain testnet tokens, ho
 
 CREDIT is distributed under the **MIT License**. You are free to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of the software, subject to the conditions set out in the `LICENSE` file included in the repository root.
 
-The Regen-Standard methodology document is maintained as a living document under the governance of the Validator DAO. Changes to the standard require a successful governance vote, ensuring that the scientific and methodological basis for credit verification evolves transparently and with community accountability.
+The Regen-Standard methodology document is maintained as a living document. Changes to the standard undergo rigorous scientific review, ensuring that the scientific and methodological basis for credit verification evolves transparently.
 
 ---
 
-CREDIT is an open-source, community-governed protocol. Contributions in the form of code, research, audits, governance proposals, and regional expansion partnerships are actively welcomed. If you are a developer, researcher, NGO, agricultural cooperative, or institutional ESG buyer interested in participating, please open an issue in this repository or reach out through the community channels listed in the wiki.
+CREDIT is an open-source protocol. Contributions in the form of code, research, audits, and regional expansion partnerships are actively welcomed. If you are a developer, researcher, NGO, agricultural cooperative, or institutional ESG buyer interested in participating, please open an issue in this repository or reach out through the community channels listed in the wiki.

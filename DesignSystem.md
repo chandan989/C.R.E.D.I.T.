@@ -51,15 +51,14 @@ These colors form the foundation of the C.R.E.D.I.T. theme. Implementing them as
 
 ### Shadows & Elevation
 
-- **Hard Shadow:** A solid `4px` offset in `Oracle Slate` at `5%` opacity, replacing soft blurs to create a technical, layered structural look.
-- **Ghost Shadow (Interactive):** Solid black shadow that appears behind buttons on hover.
+- **Hard Shadow:** A solid `4px` offset in `Oracle Slate` (`var(--color-oracle-slate)`), creating a sharp structural look. Soft blurs are entirely forbidden.
+- **Hover Shadow:** Solid `6px` offset stringently paired with a `-2px, -2px` translation to simulate a physical lift or mechanical press.
 
 **CSS Variables:**
 
 ```css
 :root {
-  --shadow-hard: 4px 4px 0px rgba(26, 29, 32, 0.05);
-  --shadow-ghost: 4px 4px 0px rgba(0, 0, 0, 1);
+  --shadow-hard: 4px 4px 0px var(--color-oracle-slate);
 }
 ```
 
@@ -71,9 +70,9 @@ These colors form the foundation of the C.R.E.D.I.T. theme. Implementing them as
 
 High-precision, structural containers that replace previous rounded "squircles."
 
-- **Architecture:** `8px` corner radius with a `1px` solid `Oracle Slate` border.
-- **Visual Depth:** Applies the predefined "Hard Shadow" (`var(--shadow-hard)`).
-- **Header Strip:** A top `4px` accent bar on every card. If the data is verified (e.g., a VCC token), this bar becomes `Regen Emerald`. Otherwise, keep it neutral.
+- **Architecture:** `0px` corner radius (perfectly sharp) with a `1px` solid `Oracle Slate` border.
+- **Visual Depth:** Applies the solid "Hard Shadow". On hover, the card translates up and left (`-2px, -2px`), expanding the solid shadow, mirroring the interaction model of the buttons.
+- **Header Strip:** Intentionally removed. Cards must rely purely on structural geometry and typography rather than colored accent bands.
 - **Metrics Typography:** Core data points use `Inter SemiBold`, `-0.02em` tracking.
 
 ### The "Protocol-Standard" Buttons
@@ -95,6 +94,11 @@ Buttons must feel like significant financial triggers rather than playful clicks
   - *Text:* `10px Space Mono`, uppercase.
   - *Container:* Encased in a `1px` `Oracle Slate` box with minimal internal padding (e.g., `2px 4px`).
 
+### Iconography & Scrollbars
+
+- **Strictly No Emojis:** Emojis are expressly forbidden as they compromise the institutional ledger aesthetic. All iconography strictly uses geometric SVGs (e.g., `lucide-react`).
+- **Brutalist Scroll:** Standard browser scrollbars are replaced with a high-contrast technical track. The thumb is a sharp `Oracle Slate` block (with a `2px` white border) that illuminates `Regen Emerald` upon interaction.
+
 ---
 
 ## 4. Layout & Interaction
@@ -112,3 +116,8 @@ Buttons must feel like significant financial triggers rather than playful clicks
   - The background of the text string turns `Data Mint`.
   - The cursor changes to a "Copy" icon (`cursor: copy`).
   - *Developer Note:* Ensure real click-to-copy functionality accompanies this hover state, as it reinforces the platform's utility-first nature.
+
+### Institutional Footer
+
+- The global footer must anchor the application, housing the "C.R.E.D.I.T." pulsing rhombus logo next to copyright information.
+- It displays raw, real-time ledger metrics (e.g., LAT/LONG coordinates or block heights) to continually reinforce the protocol's connection to physical assets.

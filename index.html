@@ -22,6 +22,23 @@
             padding: 0;
         }
 
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFFFFF;
+            border-left: 1px solid rgba(26, 29, 32, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--oracle-slate);
+            border: 2px solid #FFFFFF;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--regen-emerald);
+        }
+
         body {
             background-color: #FFFFFF;
             background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
@@ -74,17 +91,20 @@
         .card {
             background: white;
             border: 1px solid var(--oracle-slate);
-            border-radius: 8px;
+            border-radius: 0;
             position: relative;
-            box-shadow: 4px 4px 0px rgba(26, 29, 32, 0.05);
-            transition: transform 0.2s ease;
+            box-shadow: 4px 4px 0px var(--oracle-slate);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             overflow: hidden;
         }
 
+        .card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px var(--oracle-slate);
+        }
+
         .card-header-accent {
-            height: 4px;
-            width: 100%;
-            background: var(--regen-emerald);
+            display: none;
         }
 
         .card-content {
@@ -240,7 +260,6 @@
             <nav class="mono" style="font-size: 12px; display: flex; gap: 24px;">
                 <a href="#" style="color: var(--oracle-slate); text-decoration: none;">Terminal</a>
                 <a href="#" style="color: var(--oracle-slate); text-decoration: none;">Oracles</a>
-                <a href="#" style="color: var(--oracle-slate); text-decoration: none;">Governance</a>
             </nav>
         </div>
     </header>
@@ -315,11 +334,19 @@
     </main>
 
     <footer class="container"
-        style="margin-top: 80px; padding-bottom: 40px; border-top: 1px solid var(--grid-dot); pt-40px">
+        style="margin-top: 80px; padding-bottom: 40px; border-top: 1px solid var(--grid-dot);">
         <div class="col-12"
             style="padding-top: 40px; display: flex; justify-content: space-between; align-items: center;">
-            <span class="mono" style="font-size: 10px; color: var(--slate-60);">© 2024 C.R.E.D.I.T. PROTOCOL |
-                HIGH-FIDELITY DMRV</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="logo-container" style="transform: scale(0.7); transform-origin: left center;">
+                    <div class="rhombus pulse p1"></div>
+                    <div class="rhombus pulse p2"></div>
+                    <div class="rhombus pulse p3"></div>
+                    <div class="rhombus pulse p4"></div>
+                </div>
+                <span class="mono" style="font-size: 10px; color: var(--slate-60);">© 2024 C.R.E.D.I.T. PROTOCOL |
+                    HIGH-FIDELITY DMRV</span>
+            </div>
             <div class="mono" style="font-size: 10px; color: var(--slate-60);">LAT: -3.4653 / LONG: -62.2159</div>
         </div>
     </footer>
