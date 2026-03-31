@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Satellite, ShieldCheck, Coins, Database, Cpu, AlertTriangle, Globe, Sprout, Scale, Banknote } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
 import BentoCard from '../components/BentoCard';
 import Footer from '../components/Footer';
-import { useCountUp } from '../hooks/useCountUp';
+
 
 const containerVariants: any = {
   hidden: { opacity: 0 },
@@ -20,63 +20,163 @@ const itemVariants: any = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
 };
 
+const HeroVisual = () => {
+  return (
+    <div style={{ position: 'relative', width: '100%', maxWidth: 460, aspectRatio: '1/1', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* Background concentric circles */}
+      {[1, 2, 3].map((ring) => (
+        <motion.div
+          key={ring}
+          style={{
+            position: 'absolute',
+            width: `${ring * 120}px`,
+            height: `${ring * 120}px`,
+            borderRadius: '50%',
+            border: `1px dashed var(--color-grid-dot)`,
+            opacity: 0.6
+          }}
+          animate={{ rotate: ring % 2 === 0 ? -360 : 360 }}
+          transition={{ duration: 40 + ring * 10, repeat: Infinity, ease: "linear" }}
+        >
+          {/* Orbital nodes */}
+          <div style={{
+            position: 'absolute',
+            top: -6,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 12,
+            height: 12,
+            backgroundColor: 'var(--color-terminal-white)',
+            border: `2px solid var(--color-${ring === 2 ? 'regen-emerald' : 'oracle-slate'})`,
+            borderRadius: '50%',
+            boxShadow: ring === 2 ? '0 0 12px var(--color-regen-emerald)' : 'none'
+          }} />
+        </motion.div>
+      ))}
+
+      {/* Crosshairs */}
+      <div style={{ position: 'absolute', width: '100%', height: 1, background: 'var(--color-grid-dot)', opacity: 0.4 }} />
+      <div style={{ position: 'absolute', height: '100%', width: 1, background: 'var(--color-grid-dot)', opacity: 0.4 }} />
+
+      {/* Floating Elements */}
+      <motion.div 
+        style={{ position: 'absolute', top: '15%', left: '10%', background: 'var(--color-terminal-white)', padding: 12, border: '1px solid var(--color-oracle-slate)', boxShadow: '4px 4px 0px var(--color-oracle-slate)', zIndex: 5 }}
+        animate={{ y: [0, -12, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <Satellite size={24} color="var(--color-oracle-slate)" />
+      </motion.div>
+      
+      <motion.div 
+        style={{ position: 'absolute', bottom: '15%', right: '10%', background: 'var(--color-terminal-white)', padding: 12, border: '1px solid var(--color-regen-emerald)', boxShadow: '4px 4px 0px var(--color-regen-emerald)', zIndex: 5 }}
+        animate={{ y: [0, 12, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      >
+        <Sprout size={24} color="var(--color-regen-emerald)" />
+      </motion.div>
+
+      <motion.div 
+        style={{ position: 'absolute', top: '20%', right: '15%', background: 'var(--color-terminal-white)', padding: 10, border: '1px solid var(--color-oracle-slate)', zIndex: 5 }}
+        animate={{ y: [0, 8, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+      >
+        <Database size={20} color="var(--color-oracle-slate)" />
+      </motion.div>
+
+      {/* Center piece */}
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        background: 'var(--color-terminal-white)',
+        padding: 28,
+        border: '2px solid var(--color-oracle-slate)',
+        boxShadow: '8px 8px 0px var(--color-regen-emerald)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <ShieldCheck size={48} color="var(--color-regen-emerald)" />
+      </div>
+    </div>
+  );
+};
 
 const Landing: React.FC = () => {
-  const co2 = useCountUp(142807, 1500);
-  const projects = useCountUp(347, 1200);
-  const tvl = useCountUp(28.4, 1500, 1);
-  const uptime = useCountUp(99.97, 1500, 2);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Layout fullScreen>
+        <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--color-terminal-white)', zIndex: 9999 }}>
+          <motion.div
+            style={{ width: 48, height: 48, border: '2px dashed var(--color-oracle-slate)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}
+            animate={{ rotate: 360, borderRadius: ['10%', '50%', '10%'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <motion.div 
+              style={{ width: 12, height: 12, background: 'var(--color-regen-emerald)' }}
+              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </motion.div>
+          
+          <motion.div 
+             initial={{ opacity: 0 }} 
+             animate={{ opacity: [0.3, 1, 0.3] }} 
+             transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+             className="mono" style={{ fontSize: 13, color: 'var(--color-slate-60)', letterSpacing: '0.1em' }}
+          >
+            INITIALIZING CREDIT PROTOCOL...
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout fullScreen>
       <div className="snap-container">
-        {/* Screen 1: Hero & Stats */}
+        {/* Screen 1: Premium Hero */}
         <motion.section 
           className="snap-section section"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: false, amount: 0.3 }}
           variants={containerVariants}
+          style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 'max(8vh, 64px)' }}
         >
-          <motion.div variants={itemVariants} className="micro-label micro-label--verified" style={{ marginBottom: 24, alignSelf: 'flex-start' }}>
-            PROTOCOL STATUS: OPERATIONAL · TESTNET
-          </motion.div>
-          
-          <motion.h1 variants={itemVariants} style={{ fontSize: 'clamp(2.2rem, 5vw, 3.8rem)', maxWidth: 720, marginBottom: 20 }}>
-            Institutional Ecological<br />Asset Verification.
-          </motion.h1>
-          
-          <motion.p variants={itemVariants} style={{ fontSize: 16, color: 'var(--color-slate-60)', maxWidth: 640, marginBottom: 32, lineHeight: 1.7 }}>
-            Deploying high-fidelity dMRV data to anchor carbon sequestration and agricultural forward contracts onto the transparent ledger. Real-time verification for the regenerative economy.
-          </motion.p>
-          
-          <motion.div variants={itemVariants} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 60, alignSelf: 'flex-start' }}>
-            <Link to="/terminal" className="btn-protocol">Launch Terminal</Link>
-            <Link to="/docs" className="btn-secondary">Read Whitepaper</Link>
-          </motion.div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 60, alignItems: 'center', flex: 1, paddingBottom: 60 }}>
+            {/* Left Content */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <motion.div variants={itemVariants} className="micro-label micro-label--verified" style={{ marginBottom: 32 }}>
+                PROTOCOL STATUS: OPERATIONAL · TESTNET
+              </motion.div>
+              
+              <motion.h1 variants={itemVariants} style={{ fontSize: 'clamp(3rem, 5vw, 5rem)', lineHeight: 1.05, marginBottom: 32, letterSpacing: '-0.03em' }}>
+                Institutional Ecological<br />Asset Verification.
+              </motion.h1>
+              
+              <motion.p variants={itemVariants} style={{ fontSize: 'clamp(1.1rem, 1.2vw, 1.25rem)', color: 'var(--color-slate-60)', maxWidth: 580, marginBottom: 48, lineHeight: 1.6 }}>
+                Deploying high-fidelity dMRV data to anchor carbon sequestration and agricultural forward contracts onto the transparent ledger. Real-time verification for the regenerative economy.
+              </motion.p>
+              
+              <motion.div variants={itemVariants} style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                <Link to="/terminal" className="btn-protocol" style={{ padding: '18px 40px', fontSize: '1.05rem', letterSpacing: '0.04em' }}>Launch Terminal</Link>
+                <Link to="/docs" className="btn-secondary" style={{ padding: '18px 40px', fontSize: '1.05rem', letterSpacing: '0.04em' }}>Read Whitepaper</Link>
+              </motion.div>
+            </div>
 
-          <motion.div variants={itemVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, width: '100%' }}>
-            <BentoCard accent="emerald" delay={0}>
-              <div className="micro-label micro-label--verified" style={{ marginBottom: 12 }}>VERIFIED ON-CHAIN</div>
-              <div style={{ fontSize: '2.4rem', fontWeight: 600, letterSpacing: '-0.02em' }}>{co2.toLocaleString()} <span style={{ fontSize: '1rem', color: 'var(--color-slate-60)' }}>TONS</span></div>
-              <div style={{ fontSize: 13, color: 'var(--color-slate-60)', marginTop: 4 }}>Total CO₂ Sequestered</div>
-            </BentoCard>
-            <BentoCard accent="emerald" delay={80}>
-              <div className="micro-label micro-label--verified" style={{ marginBottom: 12 }}>ACROSS 12 REGIONS</div>
-              <div style={{ fontSize: '2.4rem', fontWeight: 600, letterSpacing: '-0.02em' }}>{projects}</div>
-              <div style={{ fontSize: 13, color: 'var(--color-slate-60)', marginTop: 4 }}>Active Projects</div>
-            </BentoCard>
-            <BentoCard accent="emerald" delay={160}>
-              <div className="micro-label micro-label--verified" style={{ marginBottom: 12 }}>TOTAL VALUE LOCKED</div>
-              <div style={{ fontSize: '2.4rem', fontWeight: 600, letterSpacing: '-0.02em' }}>${tvl}M</div>
-              <div style={{ fontSize: 13, color: 'var(--color-slate-60)', marginTop: 4 }}>Protocol TVL</div>
-            </BentoCard>
-            <BentoCard accent="emerald" delay={240}>
-              <div className="micro-label micro-label--verified" style={{ marginBottom: 12 }}>CREDIT-GUARD NETWORK</div>
-              <div style={{ fontSize: '2.4rem', fontWeight: 600, letterSpacing: '-0.02em' }}>{uptime}%</div>
-              <div style={{ fontSize: 13, color: 'var(--color-slate-60)', marginTop: 4 }}>Oracle Uptime</div>
-            </BentoCard>
-          </motion.div>
+            {/* Right Visual */}
+            <motion.div variants={itemVariants} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ transform: 'scale(1.1)', transformOrigin: 'center', width: '100%', maxWidth: 500 }}>
+                <HeroVisual />
+              </div>
+            </motion.div>
+          </div>
         </motion.section>
 
         {/* Screen 2: The Market Failure */}
