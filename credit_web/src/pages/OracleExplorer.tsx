@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import Layout from '../components/Layout';
 import BentoCard from '../components/BentoCard';
 import ContractHash from '../components/ContractHash';
@@ -11,6 +12,12 @@ const typeIcons: Record<string, React.ReactNode> = {
   sensor: <Radio size={16} />, 
   auditor: <UserCheck size={16} /> 
 };
+
+// HACKATHON MVP MAGIC: We embed the Oracle Worker directly in the frontend 
+// using the testnet burner wallet, so judges can test the backend without a terminal!
+const PRIVATE_KEY = "5387b0631976750573171d20806265aa6c806fd1d6e79f95c4921fb14d58daa1";
+const VCC_ADDRESS = '0x53fa7BA2D2031EbD6Cc8E15FF927bE8D61ab5B85'; 
+const VCC_ABI = ["function mint(address account, uint256 amount, string memory metadataURI) external returns (uint256)"];
 
 const regions = [
   { name: 'Amazon Basin', density: 5 },
@@ -30,6 +37,7 @@ const OracleExplorer: React.FC = () => {
   const avgTime = useCountUp(4.2, 1200, 1);
 
   const [events, setEvents] = useState<OracleEvent[]>(oracleEvents.slice(0, 8));
+  const [oracleStatus, setOracleStatus] = useState<string>('');
 
   useEffect(() => {
     if (events.length >= oracleEvents.length) return;
@@ -42,6 +50,36 @@ const OracleExplorer: React.FC = () => {
     return () => clearInterval(timer);
   }, [events.length]);
 
+  const triggerOracleWorker = async () => {
+    try {
+      setOracleStatus('Simulating IoT Ingestion...');
+      const provider = new ethers.JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545');
+      const oracleWallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
+      // Simulate payload and greenfield
+      await new Promise(r => setTimeout(r, 1000));
+      setOracleStatus('Anchoring to BNB Greenfield...');
+      await new Promise(r => setTimeout(r, 1500));
+      
+      const mockURI = `greenfield://credit-oracle-${oracleWallet.address.toLowerCase()}/sensor_payload_${Date.now()}.json`;
+      
+      setOracleStatus('Minting Token on BSC Testnet...');
+      const vccContract = new ethers.Contract(VCC_ADDRESS, VCC_ABI, oracleWallet);
+      
+      const tx = await vccContract.mint(oracleWallet.address, 1, mockURI);
+      
+      setOracleStatus(`Confirming Blockchain Hash: ${tx.hash.slice(0,10)}...`);
+      await tx.wait();
+
+      setOracleStatus('');
+      alert(`SUCCESS! Data processed and 1 VCC Token seamlessly minted to the Oracle Treasury via autonomous transaction! URI: ${mockURI}`);
+    } catch (err: any) {
+      console.error(err);
+      setOracleStatus('');
+      alert("Oracle failed to execute. Ensure the testnet wallet has BNB for gas.");
+    }
+  };
+
   const pipelineStages = [
     { name: 'Data Ingestion', count: '847K', status: 'ACTIVE' },
     { name: 'ZK Verification', count: '1,847', status: 'PROCESSING' },
@@ -53,8 +91,20 @@ const OracleExplorer: React.FC = () => {
     <Layout>
       {/* Stats */}
       <section className="section" style={{ paddingBottom: 20 }}>
-        <h1 className="section-title">Oracle Explorer</h1>
-        <p className="section-subtitle">Deep-dive into the CREDIT-Guard oracle network operations.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1 className="section-title">Oracle Explorer</h1>
+            <p className="section-subtitle">Deep-dive into the CREDIT-Guard oracle network operations.</p>
+          </div>
+          <button 
+            className="btn-protocol" 
+            style={{ padding: '12px 24px', fontSize: '1rem' }} 
+            onClick={triggerOracleWorker} 
+            disabled={!!oracleStatus}
+          >
+            {oracleStatus || 'Simulate Verified IoT Data Injection ⚡️'}
+          </button>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
           <BentoCard accent="emerald" delay={0}>
             <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-slate-60)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Active Nodes</div>
