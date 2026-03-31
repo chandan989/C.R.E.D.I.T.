@@ -75,9 +75,7 @@ const PitchDeck: React.FC = () => {
           style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 'max(8vh, 64px)' }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', maxWidth: 800 }}>
-            <motion.div variants={itemVariants} className="micro-label micro-label--verified" style={{ marginBottom: 32 }}>
-              INVESTOR PRESENTATION · CONFIDENTIAL
-            </motion.div>
+            <img src="/Logo.svg" alt="C.R.E.D.I.T. Logo" style={{ width: 80, height: 80, marginBottom: 32 }} />
             
             <motion.h1 variants={itemVariants} style={{ fontSize: 'clamp(3.5rem, 6vw, 6rem)', lineHeight: 1.05, marginBottom: 32, letterSpacing: '-0.03em' }}>
               C.R.E.D.I.T.
