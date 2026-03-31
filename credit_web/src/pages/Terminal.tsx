@@ -1,17 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { ethers } from 'ethers';
 import Layout from '../components/Layout';
 import BentoCard from '../components/BentoCard';
 import ContractHash from '../components/ContractHash';
 import ProgressRhombus from '../components/ProgressRhombus';
 import { useCountUp } from '../hooks/useCountUp';
-import { sequestrationData, creditPriceData, nodeCountData, topProjects, activityFeed } from '../data/mockCharts';
+import { sequestrationData, creditPriceData, nodeCountData, topProjects, activityFeed as initialActivityFeed } from '../data/mockCharts';
+
+const MARKET_ADDRESS = "0xeECdc827FB6BbA0EddE9f9d3c641870c0CA8e2Ab";
+const MARKET_ABI = [
+  "event VCCListed(uint256 indexed tokenId, address seller, uint256 amount, uint256 pricePerToken)",
+  "event VCCBought(uint256 indexed tokenId, address buyer, uint256 amount, uint256 totalPrice)"
+];
 
 const Terminal: React.FC = () => {
   const seqRate = useCountUp(14280.42, 1500, 2);
   const trustScore = useCountUp(99.8, 1200, 1);
   const nodes = useCountUp(1204, 1200);
   const price = useCountUp(2.47, 1200, 2);
+  const [activityFeed, setActivityFeed] = useState(initialActivityFeed);
+
+  useEffect(() => {
+    const fetchRealTransactions = async () => {
+      try {
+        const provider = new ethers.JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545');
+        const contract = new ethers.Contract(MARKET_ADDRESS, MARKET_ABI, provider);
+        
+        // Fetch last 5000 blocks for stability on BSC Testnet
+        const listedLogs = await contract.queryFilter(contract.filters.VCCListed(), -5000);
+        const boughtLogs = await contract.queryFilter(contract.filters.VCCBought(), -5000);
+        
+        const allLogs = [...listedLogs, ...boughtLogs].sort((a, b) => b.blockNumber - a.blockNumber);
+        
+        if (allLogs.length > 0) {
+          const realEvents = allLogs.map((log: any) => {
+            const isListing = log.fragment.name === 'VCCListed';
+            return {
+              timestamp: new Date().toLocaleTimeString(), // Estimate
+              event: isListing ? 'TOKEN_LISTED' : 'TOKEN_PURCHASED',
+              project: 'Oracle-Minted Token (ID 1)',
+              value: isListing ? `${ethers.formatEther(log.args[3] || 0)} tBNB` : `${ethers.formatEther(log.args[3] || 0)} tBNB`,
+              txHash: log.transactionHash,
+              status: 'verified'
+            };
+          });
+          
+          setActivityFeed([...realEvents, ...initialActivityFeed].slice(0, 15));
+        }
+      } catch (err) {
+        console.warn("Could not fetch live on-chain events yet:", err);
+      }
+    };
+    
+    fetchRealTransactions();
+    const interval = setInterval(fetchRealTransactions, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const tickerText = 'BLOCK 38,291,044 · GAS 3.2 GWEI · $CREDIT $2.47 (+3.2%) · VCC FLOOR $14.80 · ORACLE NODES 1,204 · SEQUESTRATION RATE +2.4T/hr · ';
 

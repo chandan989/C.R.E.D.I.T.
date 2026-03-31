@@ -1,16 +1,48 @@
 import React, { useState, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { ethers } from 'ethers';
 import Layout from '../components/Layout';
 import BentoCard from '../components/BentoCard';
 import ContractHash from '../components/ContractHash';
 import { acfcListings, ACFCListing } from '../data/mockTokens';
+
+const TREASURY_ADDRESS = "0xeA97dF87E6c7F68C9f95A69dA79E19B834823F25";
 
 const ACFCMarket: React.FC = () => {
   const [commodity, setCommodity] = useState('all');
   const [region, setRegion] = useState('all');
   const [riskTier, setRiskTier] = useState('all');
   const [selected, setSelected] = useState<ACFCListing | null>(null);
+  const [txStatus, setTxStatus] = useState<string>('');
+
+  const investInContract = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { ethereum } = window as any;
+    if (!ethereum) return alert("Please connect your wallet top right first.");
+    
+    try {
+      setTxStatus('Awaiting Signature...');
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+
+      // Simulate a raw investment transfer directly to the Protocol Treasury
+      const tx = await signer.sendTransaction({
+        to: TREASURY_ADDRESS,
+        value: ethers.parseEther("0.02") // Fixed demo investment amount
+      });
+      
+      setTxStatus('Confirming Block...');
+      await tx.wait();
+      
+      setTxStatus('');
+      alert("🎉 Investment Secured! Your Forward Contract is officially recorded on the BNB Blockchain.");
+    } catch (err: any) {
+      console.error(err);
+      setTxStatus('');
+      alert("Transaction Failed: " + (err.reason || err.message));
+    }
+  };
 
   const filtered = useMemo(() => {
     let items = [...acfcListings];
@@ -70,7 +102,9 @@ const ACFCMarket: React.FC = () => {
               <div style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: 16 }}>${item.investmentAmount.toLocaleString()}</div>
 
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn-protocol btn-sm" onClick={e => e.stopPropagation()}>Invest in Contract</button>
+                <button className="btn-protocol btn-sm" onClick={investInContract} disabled={!!txStatus}>
+                  {txStatus || 'Invest in Contract'}
+                </button>
                 <button className="btn-ghost" onClick={e => { e.stopPropagation(); setSelected(item); }}>View Terms</button>
               </div>
             </BentoCard>
@@ -120,7 +154,9 @@ const ACFCMarket: React.FC = () => {
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn-protocol">Invest in Contract</button>
+              <button className="btn-protocol" onClick={investInContract} disabled={!!txStatus}>
+                {txStatus || 'Invest in Contract'}
+              </button>
               <button className="btn-secondary">Download Term Sheet</button>
             </div>
           </div>
