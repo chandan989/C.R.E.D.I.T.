@@ -117,6 +117,34 @@ const OracleExplorer: React.FC = () => {
       });
       localStorage.setItem('credit_txs', JSON.stringify(recentTxs));
 
+      // Update marketplace cache so the farm/credit shows on Carbon Market & ACFC Market
+      const farmsCache = JSON.parse(localStorage.getItem('credit_farms_cache') || '[]');
+      if (farm) {
+        // Update existing farm's Greenfield URI in cache
+        const idx = farmsCache.findIndex((f: any) => f.farmerId === farm.farmerId);
+        if (idx >= 0) {
+          farmsCache[idx].greenfieldURI = greenfieldURI;
+        }
+      } else {
+        // No farm was registered — create a cache entry from the Oracle sensor data
+        const sensorFarmId = `SENSOR_${Date.now().toString().slice(-6)}`;
+        farmsCache.push({
+          farmerId: sensorFarmId,
+          farmerName: 'Oracle Auto-Detect',
+          location: 'Amazon Basin, Brazil',
+          totalArea: '50 Hectares',
+          methodology: 'Agroforestry',
+          commodity: 'Carbon Sequestration',
+          expectedYield: '25 TONS',
+          greenfieldURI: greenfieldURI,
+          walletAddress: mintTo,
+          registeredAt: Math.floor(Date.now() / 1000),
+          contractHash: FARM_REGISTRY_ADDRESS,
+          farmIndex: farmsCache.length,
+        });
+      }
+      localStorage.setItem('credit_farms_cache', JSON.stringify(farmsCache));
+
       setOracleStatus('');
       setSuccessMsg(
         `Oracle Pipeline Complete!\n\n` +
