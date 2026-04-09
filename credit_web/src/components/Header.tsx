@@ -3,12 +3,12 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { ethers } from 'ethers';
 
-export type UserRole = 'investor' | 'farmer';
+export type UserRole = 'investor' | 'farmer' | 'admin';
 
 const Header: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [role, setRole] = useState<UserRole | null>((localStorage.getItem('credit_role') as UserRole) || null);
-  const [showRolePicker, setShowRolePicker] = useState(false); // Full-screen role picker after wallet connect
+  const [showRolePicker, setShowRolePicker] = useState(false);
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -16,23 +16,18 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Check if wallet is already connected on load
   useEffect(() => {
     const checkConnection = async () => {
       const { ethereum } = window as any;
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
         const accounts = await provider.listAccounts();
-        if (accounts.length > 0) {
-          setWalletAddress(accounts[0].address);
-        }
+        if (accounts.length > 0) setWalletAddress(accounts[0].address);
       }
     };
     checkConnection();
@@ -44,39 +39,26 @@ const Header: React.FC = () => {
       try {
         const provider = new ethers.BrowserProvider(ethereum);
         const accounts = await provider.send("eth_requestAccounts", []);
-        
-        // Switch or ADD BSC Testnet
         try {
-          await ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x61' }],
-          });
+          await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x61' }] });
         } catch (switchError: any) {
           if (switchError.code === 4902) {
             await ethereum.request({
               method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: '0x61',
-                  chainName: 'BNB Smart Chain Testnet',
-                  rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-                  nativeCurrency: { name: 'BNB', symbol: 'tBNB', decimals: 18 },
-                  blockExplorerUrls: ['https://testnet.bscscan.com']
-                }
-              ],
+              params: [{
+                chainId: '0x61', chainName: 'BNB Smart Chain Testnet',
+                rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
+                nativeCurrency: { name: 'BNB', symbol: 'tBNB', decimals: 18 },
+                blockExplorerUrls: ['https://testnet.bscscan.com']
+              }],
             });
           }
         }
         setWalletAddress(accounts[0]);
-        // If no role selected yet, show the role picker
-        if (!localStorage.getItem('credit_role')) {
-          setShowRolePicker(true);
-        }
-      } catch (err) {
-        console.error("User rejected request or error occurred", err);
-      }
+        if (!localStorage.getItem('credit_role')) setShowRolePicker(true);
+      } catch (err) { console.error(err); }
     } else {
-      alert("Please install MetaMask to interact with the C.R.E.D.I.T. protocol!");
+      alert("Please install MetaMask!");
       window.open("https://metamask.io/download.html", "_blank");
     }
   };
@@ -92,21 +74,27 @@ const Header: React.FC = () => {
     localStorage.setItem('credit_role', newRole);
     setShowRolePicker(false);
     setShowRoleMenu(false);
-    if (newRole === 'farmer') {
-      navigate('/farmer');
-    } else {
-      navigate('/market/vcc');
-    }
+    if (newRole === 'farmer') navigate('/farmer');
+    else if (newRole === 'admin') navigate('/terminal');
+    else navigate('/market/vcc');
   };
 
   const isActive = (path: string) => location.pathname === path;
   const isMarket = location.pathname.startsWith('/market');
 
-  // Role-specific navigation
+  const roleLabel = role === 'farmer' ? '🌾 Farmer' : role === 'admin' ? '⚙️ Admin' : '📊 Investor';
+  const roleColor = role === 'farmer' ? '#f59e0b' : role === 'admin' ? '#8b5cf6' : 'var(--color-regen-emerald)';
+  const roleBg = role === 'farmer' ? 'rgba(245,158,11,0.15)' : role === 'admin' ? 'rgba(139,92,246,0.15)' : 'rgba(14,220,122,0.1)';
+  const roleBorder = role === 'farmer' ? 'rgba(245,158,11,0.3)' : role === 'admin' ? 'rgba(139,92,246,0.3)' : 'rgba(14,220,122,0.2)';
+
   const navLinks = (
     <>
-      {/* Investor-only pages */}
-      {role !== 'farmer' && (
+      {/* Farmer */}
+      {role === 'farmer' && (
+        <NavLink to="/farmer" className={`site-nav__link ${isActive('/farmer') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>My Farm</NavLink>
+      )}
+      {/* Investor */}
+      {role === 'investor' && (
         <div className="nav-dropdown">
           <span className={`site-nav__link ${isMarket ? 'site-nav__link--active' : ''}`} style={{ cursor: 'pointer' }}>Markets ▾</span>
           <div className="nav-dropdown__menu">
@@ -115,12 +103,24 @@ const Header: React.FC = () => {
           </div>
         </div>
       )}
-      {role !== 'farmer' && (
+      {role === 'investor' && (
         <NavLink to="/portfolio" className={`site-nav__link ${isActive('/portfolio') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>My Portfolio</NavLink>
       )}
-      {/* Farmer-only pages */}
-      {role === 'farmer' && (
-        <NavLink to="/farmer" className={`site-nav__link ${isActive('/farmer') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>My Farm</NavLink>
+      {/* Admin */}
+      {role === 'admin' && (
+        <NavLink to="/terminal" className={`site-nav__link ${isActive('/terminal') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Dashboard</NavLink>
+      )}
+      {role === 'admin' && (
+        <NavLink to="/oracle" className={`site-nav__link ${isActive('/oracle') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Oracle</NavLink>
+      )}
+      {role === 'admin' && (
+        <div className="nav-dropdown">
+          <span className={`site-nav__link ${isMarket ? 'site-nav__link--active' : ''}`} style={{ cursor: 'pointer' }}>Markets ▾</span>
+          <div className="nav-dropdown__menu">
+            <Link to="/market/vcc" className="nav-dropdown__item" onClick={() => setMobileOpen(false)}>Carbon Credits</Link>
+            <Link to="/market/acfc" className="nav-dropdown__item" onClick={() => setMobileOpen(false)}>Forward Contracts</Link>
+          </div>
+        </div>
       )}
       {/* Common */}
       <NavLink to="/docs" className={`site-nav__link ${isActive('/docs') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Docs</NavLink>
@@ -140,20 +140,18 @@ const Header: React.FC = () => {
             {navLinks}
             {walletAddress ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
-                {/* Role Selector Dropdown */}
                 {role && (
                   <div
                     onClick={() => setShowRoleMenu(!showRoleMenu)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 4,
                       padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
-                      background: role === 'farmer' ? 'rgba(245,158,11,0.15)' : 'rgba(14,220,122,0.1)',
-                      border: `1px solid ${role === 'farmer' ? 'rgba(245,158,11,0.3)' : 'rgba(14,220,122,0.2)'}`,
+                      background: roleBg, border: `1px solid ${roleBorder}`,
                       fontSize: 11, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.05em',
-                      color: role === 'farmer' ? '#f59e0b' : 'var(--color-regen-emerald)',
+                      color: roleColor,
                     }}
                   >
-                    {role === 'farmer' ? '🌾 Farmer' : '📊 Investor'}
+                    {roleLabel}
                     <ChevronDown size={12} />
                   </div>
                 )}
@@ -161,35 +159,31 @@ const Header: React.FC = () => {
                   <div style={{
                     position: 'absolute', top: '100%', right: 60, marginTop: 6, zIndex: 9999,
                     background: '#1a1d20', border: '1px solid rgba(14,220,122,0.2)', borderRadius: 8,
-                    overflow: 'hidden', minWidth: 160, boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                    overflow: 'hidden', minWidth: 180, boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
                   }}>
-                    <div
-                      onClick={() => selectRole('investor')}
-                      style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, background: role === 'investor' ? 'rgba(14,220,122,0.1)' : 'transparent' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(14,220,122,0.1)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = role === 'investor' ? 'rgba(14,220,122,0.1)' : 'transparent')}
-                    >
-                      📊 Investor / Auditor
-                    </div>
-                    <div
-                      onClick={() => selectRole('farmer')}
-                      style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, background: role === 'farmer' ? 'rgba(245,158,11,0.1)' : 'transparent' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.1)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = role === 'farmer' ? 'rgba(245,158,11,0.1)' : 'transparent')}
-                    >
-                      🌾 Farmer / Producer
-                    </div>
+                    {(['investor', 'farmer', 'admin'] as UserRole[]).map(r => {
+                      const labels: Record<UserRole, string> = { investor: '📊 Investor', farmer: '🌾 Farmer', admin: '⚙️ Protocol Admin' };
+                      const colors: Record<UserRole, string> = { investor: 'rgba(14,220,122,0.1)', farmer: 'rgba(245,158,11,0.1)', admin: 'rgba(139,92,246,0.1)' };
+                      return (
+                        <div
+                          key={r}
+                          onClick={() => selectRole(r)}
+                          style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, background: role === r ? colors[r] : 'transparent' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = colors[r])}
+                          onMouseLeave={e => (e.currentTarget.style.background = role === r ? colors[r] : 'transparent')}
+                        >
+                          {labels[r]}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
-                {/* Wallet Address */}
                 <span className="contract-hash" onClick={disconnectWallet} title="Disconnect Wallet" style={{ fontSize: 11, cursor: 'pointer', background: 'var(--data-mint)', color: 'var(--regen-emerald)' }}>
                   {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </span>
               </div>
             ) : (
-              <button className="btn-protocol btn-sm" onClick={connectWallet}>
-                Connect Wallet
-              </button>
+              <button className="btn-protocol btn-sm" onClick={connectWallet}>Connect Wallet</button>
             )}
           </nav>
 
@@ -208,49 +202,45 @@ const Header: React.FC = () => {
         </div>
       </header>
 
-      {/* Full-screen Role Picker Modal — shows after wallet connect if no role chosen */}
+      {/* Role Picker Modal */}
       {showRolePicker && walletAddress && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10000,
           background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <div style={{ textAlign: 'center', maxWidth: 500, padding: 40 }}>
+          <div style={{ textAlign: 'center', maxWidth: 700, padding: 40 }}>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 8, color: '#fff' }}>Welcome to C.R.E.D.I.T.</h2>
             <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 32 }}>
-              Connected as <span style={{ color: 'var(--color-regen-emerald)', fontFamily: 'var(--font-mono)' }}>{walletAddress.slice(0,6)}...{walletAddress.slice(-4)}</span>. 
-              Choose how you want to use the protocol.
+              Connected as <span style={{ color: 'var(--color-regen-emerald)', fontFamily: 'var(--font-mono)' }}>{walletAddress.slice(0,6)}...{walletAddress.slice(-4)}</span>. Choose your role.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-              {/* Farmer Card */}
-              <div
-                onClick={() => selectRole('farmer')}
-                style={{
-                  padding: 32, borderRadius: 12, cursor: 'pointer',
-                  background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.15)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.5)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.05)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.2)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
+              {/* Farmer */}
+              <div onClick={() => selectRole('farmer')} style={{ padding: 28, borderRadius: 12, cursor: 'pointer', background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)', transition: 'all 0.2s ease' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.05)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🌾</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 600, color: '#f59e0b', marginBottom: 8 }}>I am a Farmer</div>
-                <p style={{ fontSize: 12, color: '#9ca3af', lineHeight: 1.5 }}>Register your farm, monitor IoT sensors, and earn carbon credits from your land.</p>
+                <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#f59e0b', marginBottom: 8 }}>Farmer</div>
+                <p style={{ fontSize: 11, color: '#9ca3af', lineHeight: 1.5 }}>Register farm, trigger IoT sensors, earn carbon credits.</p>
               </div>
-              {/* Investor Card */}
-              <div
-                onClick={() => selectRole('investor')}
-                style={{
-                  padding: 32, borderRadius: 12, cursor: 'pointer',
-                  background: 'rgba(14,220,122,0.05)', border: '1px solid rgba(14,220,122,0.2)',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,220,122,0.15)'; e.currentTarget.style.borderColor = 'rgba(14,220,122,0.5)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,220,122,0.05)'; e.currentTarget.style.borderColor = 'rgba(14,220,122,0.2)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              {/* Investor */}
+              <div onClick={() => selectRole('investor')} style={{ padding: 28, borderRadius: 12, cursor: 'pointer', background: 'rgba(14,220,122,0.05)', border: '1px solid rgba(14,220,122,0.2)', transition: 'all 0.2s ease' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,220,122,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,220,122,0.05)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>📊</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-regen-emerald)', marginBottom: 8 }}>I am an Investor</div>
-                <p style={{ fontSize: 12, color: '#9ca3af', lineHeight: 1.5 }}>Buy carbon credits, invest in forward contracts, and fund sustainable agriculture.</p>
+                <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-regen-emerald)', marginBottom: 8 }}>Investor</div>
+                <p style={{ fontSize: 11, color: '#9ca3af', lineHeight: 1.5 }}>Buy carbon credits, invest in forward contracts.</p>
+              </div>
+              {/* Admin */}
+              <div onClick={() => selectRole('admin')} style={{ padding: 28, borderRadius: 12, cursor: 'pointer', background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.2)', transition: 'all 0.2s ease' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(139,92,246,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(139,92,246,0.05)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>⚙️</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#8b5cf6', marginBottom: 8 }}>Protocol Admin</div>
+                <p style={{ fontSize: 11, color: '#9ca3af', lineHeight: 1.5 }}>Dashboard, Oracle pipeline, and protocol metrics.</p>
               </div>
             </div>
           </div>
