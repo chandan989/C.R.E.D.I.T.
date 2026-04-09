@@ -51,7 +51,7 @@ const CarbonMarket: React.FC = () => {
       const recentTxs = JSON.parse(localStorage.getItem('credit_txs') || '[]');
       recentTxs.unshift({
         timestamp: new Date().toLocaleTimeString(),
-        event: 'TOKEN_PURCHASED',
+        event: 'CREDIT_ACQUIRED',
         project: item.projectName, // Shows the real project they clicked
         value: `${item.pricePerTon.toFixed(2)} USD (0.001 BNB)`, // Shows dynamic UI data
         txHash: tx.hash,

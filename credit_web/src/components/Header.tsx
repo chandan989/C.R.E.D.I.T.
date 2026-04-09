@@ -102,10 +102,13 @@ const Header: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
   const isMarket = location.pathname.startsWith('/market');
 
-  // Role-specific navigation: farmers don't see market, investors don't see farmer portal
+  // Role-specific navigation
   const navLinks = (
     <>
-      <NavLink to="/terminal" className={`site-nav__link ${isActive('/terminal') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Terminal</NavLink>
+      {/* Investor-only pages */}
+      {role !== 'farmer' && (
+        <NavLink to="/terminal" className={`site-nav__link ${isActive('/terminal') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Dashboard</NavLink>
+      )}
       {role !== 'farmer' && (
         <div className="nav-dropdown">
           <span className={`site-nav__link ${isMarket ? 'site-nav__link--active' : ''}`} style={{ cursor: 'pointer' }}>Markets ▾</span>
@@ -115,10 +118,17 @@ const Header: React.FC = () => {
           </div>
         </div>
       )}
-      <NavLink to="/oracle" className={`site-nav__link ${isActive('/oracle') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Oracle</NavLink>
+      {role !== 'farmer' && (
+        <NavLink to="/portfolio" className={`site-nav__link ${isActive('/portfolio') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>My Portfolio</NavLink>
+      )}
+      {/* Farmer-only pages */}
       {role === 'farmer' && (
         <NavLink to="/farmer" className={`site-nav__link ${isActive('/farmer') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>My Farm</NavLink>
       )}
+      {role === 'farmer' && (
+        <NavLink to="/oracle" className={`site-nav__link ${isActive('/oracle') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Oracle</NavLink>
+      )}
+      {/* Common */}
       <NavLink to="/docs" className={`site-nav__link ${isActive('/docs') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Docs</NavLink>
     </>
   );

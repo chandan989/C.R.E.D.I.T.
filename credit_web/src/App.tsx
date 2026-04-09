@@ -9,6 +9,7 @@ import FarmerPortal from "./pages/FarmerPortal";
 import Docs from "./pages/Docs";
 import NotFound from "./pages/NotFound";
 import PitchDeck from "./pages/PitchDeck";
+import Portfolio from "./pages/Portfolio";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
         <Route path="/farmer" element={<FarmerPortal />} />
         <Route path="/docs" element={<Docs />} />
         <Route path="/pitch-deck" element={<PitchDeck />} />
+        <Route path="/portfolio" element={<Portfolio />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
