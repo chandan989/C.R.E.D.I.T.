@@ -501,7 +501,56 @@ const PitchDeck: React.FC = () => {
           </motion.div>
         </motion.section>
 
-        {/* Slide 10: Call To Action & Footer */}
+        {/* Slide 10: The Team */}
+        <motion.section 
+          className="snap-section section"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.3 }}
+          variants={containerVariants}
+        >
+          <motion.div variants={itemVariants} className="micro-label micro-label--verified" style={{ marginBottom: 24, alignSelf: 'flex-start' }}>
+            CORE CONTRIBUTORS
+          </motion.div>
+          <motion.h2 variants={itemVariants} className="section-title">The Team</motion.h2>
+          <motion.p variants={itemVariants} className="section-subtitle" style={{ maxWidth: 720 }}>
+            Bringing together deep expertise across Web3 infrastructure, artificial intelligence, and scalable consumer platforms to build the future of regenerative finance.
+          </motion.p>
+          
+          <motion.div variants={itemVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24, marginTop: 24 }}>
+            <BentoCard accent="slate" delay={0}>
+              <div style={{ padding: '24px 0', borderBottom: '1px solid var(--color-grid-dot)', marginBottom: 24 }}>
+                <div style={{ fontSize: 12, color: 'var(--color-regen-emerald)', marginBottom: 8, letterSpacing: '0.05em', fontWeight: 600 }}>WEB3 & GENAI ENGINEER</div>
+                <div style={{ fontSize: '2rem', fontWeight: 600 }}>Nikhil Sharma</div>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 14, color: 'var(--color-slate-60)', lineHeight: 1.8 }}>
+                  <li>• Multi-hackathon-winning Web3 & GenAI engineer</li>
+                  <li>• Specialized in decentralized systems, AI, and blockchain innovation</li>
+                  <li>• Built scalable products including Loopin and Veritas</li>
+                  <li>• Global recognition: WCHL Finalist, Hedera & Stacks hackathons</li>
+                  <li>• Expertise in smart contracts and decentralized identity systems</li>
+                  <li>• Strong experience in full-stack AI integrations</li>
+              </ul>
+            </BentoCard>
+
+            <BentoCard accent="slate" delay={100}>
+               <div style={{ padding: '24px 0', borderBottom: '1px solid var(--color-grid-dot)', marginBottom: 24 }}>
+                <div style={{ fontSize: 12, color: 'var(--color-regen-emerald)', marginBottom: 8, letterSpacing: '0.05em', fontWeight: 600 }}>FULL-STACK & MOBILE ENGINEER</div>
+                <div style={{ fontSize: '2rem', fontWeight: 600 }}>Chandan Soni</div>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 14, color: 'var(--color-slate-60)', lineHeight: 1.8 }}>
+                  <li>• Full-stack and mobile engineer</li>
+                  <li>• Expertise in AI-powered applications and scalable backend systems</li>
+                  <li>• Founder of Elykid (live AI companion platform on iOS & Android)</li>
+                  <li>• Skilled in end-to-end product development (0 → 1 → scale)</li>
+                  <li>• Experience in building and integrating AI pipelines</li>
+                  <li>• Led product development from concept to deployment</li>
+              </ul>
+            </BentoCard>
+          </motion.div>
+        </motion.section>
+
+        {/* Slide 11: Call To Action & Footer */}
         <motion.section 
           className="snap-section"
           style={{ paddingBottom: 0, justifyContent: 'space-between', padding: '120px 0 0 0', width: '100%' }}
