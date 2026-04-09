@@ -5,6 +5,7 @@ import Terminal from "./pages/Terminal";
 import CarbonMarket from "./pages/CarbonMarket";
 import ACFCMarket from "./pages/ACFCMarket";
 import OracleExplorer from "./pages/OracleExplorer";
+import FarmerPortal from "./pages/FarmerPortal";
 import Docs from "./pages/Docs";
 import NotFound from "./pages/NotFound";
 import PitchDeck from "./pages/PitchDeck";
@@ -20,6 +21,7 @@ const App = () => (
         <Route path="/market/vcc" element={<CarbonMarket />} />
         <Route path="/market/acfc" element={<ACFCMarket />} />
         <Route path="/oracle" element={<OracleExplorer />} />
+        <Route path="/farmer" element={<FarmerPortal />} />
         <Route path="/docs" element={<Docs />} />
         <Route path="/pitch-deck" element={<PitchDeck />} />
         <Route path="*" element={<NotFound />} />

@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { ethers } from 'ethers';
+
+export type UserRole = 'investor' | 'farmer';
 
 const Header: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [role, setRole] = useState<UserRole>((localStorage.getItem('credit_role') as UserRole) || 'investor');
+  const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,6 +78,20 @@ const Header: React.FC = () => {
 
   const disconnectWallet = () => {
     setWalletAddress(null);
+    localStorage.removeItem('credit_role');
+    setRole('investor');
+  };
+
+  const switchRole = (newRole: UserRole) => {
+    setRole(newRole);
+    localStorage.setItem('credit_role', newRole);
+    setShowRoleMenu(false);
+    // Navigate to the appropriate default page for that role
+    if (newRole === 'farmer') {
+      navigate('/farmer');
+    } else {
+      navigate('/terminal');
+    }
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -89,6 +108,7 @@ const Header: React.FC = () => {
         </div>
       </div>
       <NavLink to="/oracle" className={`site-nav__link ${isActive('/oracle') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Oracle</NavLink>
+      <NavLink to="/farmer" className={`site-nav__link ${isActive('/farmer') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Farmer</NavLink>
       <NavLink to="/docs" className={`site-nav__link ${isActive('/docs') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Docs</NavLink>
     </>
   );
@@ -104,9 +124,51 @@ const Header: React.FC = () => {
         <nav className="site-nav">
           {navLinks}
           {walletAddress ? (
-            <span className="contract-hash" onClick={disconnectWallet} title="Disconnect Wallet" style={{ fontSize: 11, cursor: 'pointer', background: 'var(--data-mint)', color: 'var(--regen-emerald)' }}>
-              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
+              {/* Role Selector Dropdown */}
+              <div
+                onClick={() => setShowRoleMenu(!showRoleMenu)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+                  background: role === 'farmer' ? 'rgba(245,158,11,0.15)' : 'rgba(14,220,122,0.1)',
+                  border: `1px solid ${role === 'farmer' ? 'rgba(245,158,11,0.3)' : 'rgba(14,220,122,0.2)'}`,
+                  fontSize: 11, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.05em',
+                  color: role === 'farmer' ? '#f59e0b' : 'var(--color-regen-emerald)',
+                }}
+              >
+                {role === 'farmer' ? '🌾 Farmer' : '📊 Investor'}
+                <ChevronDown size={12} />
+              </div>
+              {showRoleMenu && (
+                <div style={{
+                  position: 'absolute', top: '100%', right: 60, marginTop: 6, zIndex: 9999,
+                  background: '#1a1d20', border: '1px solid rgba(14,220,122,0.2)', borderRadius: 8,
+                  overflow: 'hidden', minWidth: 160, boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                }}>
+                  <div
+                    onClick={() => switchRole('investor')}
+                    style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, background: role === 'investor' ? 'rgba(14,220,122,0.1)' : 'transparent' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(14,220,122,0.1)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = role === 'investor' ? 'rgba(14,220,122,0.1)' : 'transparent')}
+                  >
+                    📊 Investor / Auditor
+                  </div>
+                  <div
+                    onClick={() => switchRole('farmer')}
+                    style={{ padding: '10px 16px', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, background: role === 'farmer' ? 'rgba(245,158,11,0.1)' : 'transparent' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.1)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = role === 'farmer' ? 'rgba(245,158,11,0.1)' : 'transparent')}
+                  >
+                    🌾 Farmer / Producer
+                  </div>
+                </div>
+              )}
+              {/* Wallet Address */}
+              <span className="contract-hash" onClick={disconnectWallet} title="Disconnect Wallet" style={{ fontSize: 11, cursor: 'pointer', background: 'var(--data-mint)', color: 'var(--regen-emerald)' }}>
+                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+              </span>
+            </div>
           ) : (
             <button className="btn-protocol btn-sm" onClick={connectWallet}>
               Connect Wallet

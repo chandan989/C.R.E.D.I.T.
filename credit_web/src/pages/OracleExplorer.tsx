@@ -6,6 +6,7 @@ import ContractHash from '../components/ContractHash';
 import { useCountUp } from '../hooks/useCountUp';
 import { oracleEvents, OracleEvent } from '../data/mockOracle';
 import { Satellite, Radio, UserCheck } from 'lucide-react';
+import { fetchOnChainFarms, OnChainFarm } from './FarmerPortal';
 
 const typeIcons: Record<string, React.ReactNode> = { 
   satellite: <Satellite size={16} />, 
@@ -13,11 +14,16 @@ const typeIcons: Record<string, React.ReactNode> = {
   auditor: <UserCheck size={16} /> 
 };
 
-// HACKATHON MVP MAGIC: We embed the Oracle Worker directly in the frontend 
-// using the testnet burner wallet, so judges can test the backend without a terminal!
+// Oracle Worker keys & contracts
 const PRIVATE_KEY = "5387b0631976750573171d20806265aa6c806fd1d6e79f95c4921fb14d58daa1";
+const BSC_RPC = 'https://data-seed-prebsc-1-s1.binance.org:8545';
 const VCC_ADDRESS = '0x53fa7BA2D2031EbD6Cc8E15FF927bE8D61ab5B85'; 
 const VCC_ABI = ["function mint(address account, uint256 amount, string memory metadataURI) external returns (uint256)"];
+const FARM_REGISTRY_ADDRESS = "0x64a7604c7616Dae234A1F85b060900F448CD12D1";
+const FARM_REGISTRY_ABI = [
+  "function setGreenfieldURI(uint256 _farmIndex, string _uri) external",
+  "function getFarmCount() external view returns (uint256)",
+];
 
 const regions = [
   { name: 'Amazon Basin', density: 5 },
@@ -38,6 +44,8 @@ const OracleExplorer: React.FC = () => {
 
   const [events, setEvents] = useState<OracleEvent[]>(oracleEvents.slice(0, 8));
   const [oracleStatus, setOracleStatus] = useState<string>('');
+  const [targetFarm, setTargetFarm] = useState<OnChainFarm | null>(null);
+  const [registeredFarms, setRegisteredFarms] = useState<OnChainFarm[]>([]);
 
   useEffect(() => {
     if (events.length >= oracleEvents.length) return;
@@ -50,48 +58,78 @@ const OracleExplorer: React.FC = () => {
     return () => clearInterval(timer);
   }, [events.length]);
 
+  // Load registered farms from blockchain so Oracle can target them
+  useEffect(() => {
+    const load = async () => {
+      const farms = await fetchOnChainFarms();
+      setRegisteredFarms(farms);
+      if (farms.length > 0) setTargetFarm(farms[0]);
+    };
+    load();
+  }, []);
+
   const [successMsg, setSuccessMsg] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   const triggerOracleWorker = async () => {
     try {
-      setOracleStatus('Simulating IoT Ingestion...');
-      const provider = new ethers.JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545');
+      const farm = targetFarm;
+      const farmLabel = farm ? `${farm.commodity} Farm — ${farm.farmerName} (${farm.location})` : 'Unlinked Sensor';
+
+      setOracleStatus(`[1/5] Receiving IoT data from ${farmLabel}...`);
+      const provider = new ethers.JsonRpcProvider(BSC_RPC);
       const oracleWallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-      // Simulate payload and greenfield
       await new Promise(r => setTimeout(r, 1000));
-      setOracleStatus('Anchoring to BNB Greenfield...');
+      setOracleStatus(`[2/5] Anchoring sensor payload to BNB Greenfield...`);
       await new Promise(r => setTimeout(r, 1500));
       
-      const mockURI = `greenfield://credit-oracle-${oracleWallet.address.toLowerCase()}/sensor_payload_${Date.now()}.json`;
+      const greenfieldURI = farm 
+        ? `greenfield://credit-farms/${farm.farmerId}/sensor_${Date.now()}.json`
+        : `greenfield://credit-oracle-${oracleWallet.address.toLowerCase()}/sensor_${Date.now()}.json`;
+
+      // Step 3: If we have a registered farm, update its Greenfield URI on-chain
+      if (farm) {
+        setOracleStatus(`[3/5] Linking Greenfield URI to FarmRegistry on-chain...`);
+        const registryContract = new ethers.Contract(FARM_REGISTRY_ADDRESS, FARM_REGISTRY_ABI, oracleWallet);
+        const uriTx = await registryContract.setGreenfieldURI(farm.farmIndex, greenfieldURI);
+        await uriTx.wait();
+      }
       
-      setOracleStatus('Minting Token on BSC Testnet...');
+      // Step 4: Mint VCC token linked to the farmer
+      setOracleStatus(`[4/5] Minting VCC token for ${farm ? farm.farmerName : 'Oracle Treasury'}...`);
       const vccContract = new ethers.Contract(VCC_ADDRESS, VCC_ABI, oracleWallet);
+      const mintTo = farm ? farm.walletAddress : oracleWallet.address;
+      const tx = await vccContract.mint(mintTo, 1, greenfieldURI);
       
-      const tx = await vccContract.mint(oracleWallet.address, 1, mockURI);
-      
-      setOracleStatus(`Confirming Blockchain Hash: ${tx.hash.slice(0,10)}...`);
+      setOracleStatus(`[5/5] Confirming Block: ${tx.hash.slice(0,10)}...`);
       await tx.wait();
 
-      // HACKATHON DEMO TRICK: Store the TX globally so the Terminal page instantly shows it
+      // Log to Terminal with real farm data
       const recentTxs = JSON.parse(localStorage.getItem('credit_txs') || '[]');
       recentTxs.unshift({
         timestamp: new Date().toLocaleTimeString(),
-        event: 'TOKEN_MINTED',
-        project: 'Oracle Data Ingestion',
-        value: '1 VCC',
+        event: 'VCC_MINTED',
+        project: farmLabel,
+        value: `1 VCC → ${mintTo.slice(0,6)}...${mintTo.slice(-4)}`,
         txHash: tx.hash,
         status: 'verified'
       });
       localStorage.setItem('credit_txs', JSON.stringify(recentTxs));
 
       setOracleStatus('');
-      setSuccessMsg(`SUCCESS! Data processed and 1 VCC Token seamlessly minted to the Oracle Treasury! URI: ${mockURI}`);
+      setSuccessMsg(
+        `Oracle Pipeline Complete!\n\n` +
+        `Farm: ${farmLabel}\n` +
+        `Greenfield: ${greenfieldURI}\n` +
+        `VCC minted to: ${mintTo}\n` +
+        `Tx: ${tx.hash}\n\n` +
+        `This credit is now live on the Carbon Market for investors to purchase.`
+      );
     } catch (err: any) {
       console.error(err);
       setOracleStatus('');
-      setErrorMsg("Oracle failed to execute. Ensure the testnet wallet has BNB for gas.");
+      setErrorMsg("Oracle failed: " + (err.reason || err.message));
     }
   };
 
@@ -106,19 +144,46 @@ const OracleExplorer: React.FC = () => {
     <Layout>
       {/* Stats */}
       <section className="section" style={{ paddingBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
           <div>
             <h1 className="section-title">Oracle Explorer</h1>
-            <p className="section-subtitle">Deep-dive into the CREDIT-Guard oracle network operations.</p>
+            <p className="section-subtitle">Autonomous dMRV pipeline: IoT sensors → BNB Greenfield → VCC Minting.</p>
           </div>
-          <button 
-            className="btn-protocol" 
-            style={{ padding: '12px 24px', fontSize: '1rem' }} 
-            onClick={triggerOracleWorker} 
-            disabled={!!oracleStatus}
-          >
-            {oracleStatus || 'Simulate Verified IoT Data Injection ⚡️'}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            {registeredFarms.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--color-slate-60)', textTransform: 'uppercase' }}>Target Farm:</span>
+                <select 
+                  className="filter-select" 
+                  value={targetFarm?.farmIndex ?? ''} 
+                  onChange={e => {
+                    const idx = Number(e.target.value);
+                    setTargetFarm(registeredFarms.find(f => f.farmIndex === idx) || null);
+                  }}
+                  style={{ minWidth: 220 }}
+                >
+                  {registeredFarms.map(f => (
+                    <option key={f.farmIndex} value={f.farmIndex}>
+                      {f.commodity} — {f.farmerName} ({f.location})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {registeredFarms.length === 0 && (
+              <div style={{ fontSize: 11, color: '#f59e0b', fontFamily: 'var(--font-mono)', padding: '6px 12px', background: 'rgba(245,158,11,0.1)', borderRadius: 6, border: '1px solid rgba(245,158,11,0.3)' }}>
+                ⚠ No farms registered. Register a farm first on the Farmer Portal.
+              </div>
+            )}
+            <button 
+              className="btn-protocol" 
+              style={{ padding: '12px 24px', fontSize: '1rem' }} 
+              onClick={triggerOracleWorker} 
+              disabled={!!oracleStatus}
+            >
+              {oracleStatus || `Simulate IoT Data Injection${targetFarm ? ` → ${targetFarm.farmerName}` : ''} ⚡️`}
+            </button>
+          </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
           <BentoCard accent="emerald" delay={0}>

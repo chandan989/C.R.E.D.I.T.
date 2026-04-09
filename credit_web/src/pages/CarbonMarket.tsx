@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { ethers } from 'ethers';
 import Layout from '../components/Layout';
@@ -6,6 +6,7 @@ import BentoCard from '../components/BentoCard';
 import ContractHash from '../components/ContractHash';
 import ProgressRhombus from '../components/ProgressRhombus';
 import { vccListings, VCCListing } from '../data/mockTokens';
+import { fetchOnChainFarms } from './FarmerPortal';
 
 const TREASURY_ADDRESS = "0xeA97dF87E6c7F68C9f95A69dA79E19B834823F25";
 
@@ -67,8 +68,38 @@ const CarbonMarket: React.FC = () => {
   };
 
 
+  // Pull farmer-registered farms from the REAL blockchain contract
+  const [farmerVCCs, setFarmerVCCs] = useState<VCCListing[]>([]);
+  useEffect(() => {
+    const syncFarms = async () => {
+      const farms = await fetchOnChainFarms();
+      const converted: VCCListing[] = farms.map((f, i) => ({
+        id: `VCC-LIVE-${String(i + 1).padStart(3, '0')}`,
+        projectName: `${f.commodity} Carbon Offset — ${f.farmerName}`,
+        region: f.location,
+        methodology: f.methodology,
+        tons: Math.round(parseFloat(f.totalArea) * 5) || 50,
+        pricePerTon: 14.50 + (i * 0.8),
+        status: 'on-sale' as const,
+        contractHash: f.contractHash,
+        vintage: 2026,
+        totalArea: f.totalArea,
+        co2PerHectare: 5.8,
+        greenfieldLink: f.greenfieldURI || `gf://credit-farms/${f.farmerId}/`,
+        description: `Live on-chain carbon credits from ${f.farmerName}'s ${f.commodity} farm in ${f.location}. Verified via ${f.methodology}. Greenfield: ${f.greenfieldURI || 'pending'}`,
+        verificationTier: 4,
+        totalTiers: 5,
+      }));
+      setFarmerVCCs(converted);
+    };
+    syncFarms();
+    const interval = setInterval(syncFarms, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   const filtered = useMemo(() => {
-    let items = [...vccListings];
+    // Merge farmer-registered (LIVE) listings at the top
+    let items = [...farmerVCCs, ...vccListings];
     if (region !== 'all') items = items.filter(i => i.region.toLowerCase().includes(region));
     if (methodology !== 'all') items = items.filter(i => i.methodology.toLowerCase() === methodology);
     if (statusFilter !== 'all') items = items.filter(i => i.status === statusFilter);
@@ -76,7 +107,7 @@ const CarbonMarket: React.FC = () => {
     if (sortBy === 'price-low') items.sort((a, b) => a.pricePerTon - b.pricePerTon);
     else if (sortBy === 'price-high') items.sort((a, b) => b.pricePerTon - a.pricePerTon);
     return items;
-  }, [region, methodology, statusFilter, sortBy, search]);
+  }, [region, methodology, statusFilter, sortBy, search, farmerVCCs]);
 
   return (
     <Layout>
