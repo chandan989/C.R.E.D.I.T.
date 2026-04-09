@@ -95,7 +95,7 @@ const Header: React.FC = () => {
     if (newRole === 'farmer') {
       navigate('/farmer');
     } else {
-      navigate('/terminal');
+      navigate('/market/vcc');
     }
   };
 
@@ -106,9 +106,6 @@ const Header: React.FC = () => {
   const navLinks = (
     <>
       {/* Investor-only pages */}
-      {role !== 'farmer' && (
-        <NavLink to="/terminal" className={`site-nav__link ${isActive('/terminal') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Dashboard</NavLink>
-      )}
       {role !== 'farmer' && (
         <div className="nav-dropdown">
           <span className={`site-nav__link ${isMarket ? 'site-nav__link--active' : ''}`} style={{ cursor: 'pointer' }}>Markets ▾</span>

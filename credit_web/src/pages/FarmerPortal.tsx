@@ -123,10 +123,71 @@ const FarmerPortal: React.FC = () => {
 
   useEffect(() => {
     loadFarms();
-    // Poll every 10 seconds for new registrations
     const interval = setInterval(loadFarms, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // ===== IoT SIMULATION (embedded Oracle trigger) =====
+  const ORACLE_KEY = "5387b0631976750573171d20806265aa6c806fd1d6e79f95c4921fb14d58daa1";
+  const VCC_ADDRESS = '0x53fa7BA2D2031EbD6Cc8E15FF927bE8D61ab5B85';
+  const VCC_ABI = ["function mint(address account, uint256 amount, string memory metadataURI) external returns (uint256)"];
+  const [iotStatus, setIotStatus] = useState('');
+  const [iotFarmIndex, setIotFarmIndex] = useState<number>(0);
+
+  const simulateIoT = async () => {
+    const farm = farms[iotFarmIndex];
+    if (!farm) { alert('No farms registered yet. Register a farm first.'); return; }
+
+    try {
+      setIotStatus(`[1/4] Collecting sensor data from ${farm.commodity} farm...`);
+      const provider = new ethers.JsonRpcProvider(BSC_RPC);
+      const oracleWallet = new ethers.Wallet(ORACLE_KEY, provider);
+      await new Promise(r => setTimeout(r, 1200));
+
+      setIotStatus('[2/4] Anchoring payload to BNB Greenfield...');
+      await new Promise(r => setTimeout(r, 1500));
+      const greenfieldURI = `greenfield://credit-farms/${farm.farmerId}/sensor_${Date.now()}.json`;
+
+      setIotStatus('[3/4] Updating Greenfield URI on FarmRegistry...');
+      const registryContract = new ethers.Contract(FARM_REGISTRY_ADDRESS, FARM_REGISTRY_ABI, oracleWallet);
+      const uriTx = await registryContract.setGreenfieldURI(farm.farmIndex, greenfieldURI);
+      await uriTx.wait();
+
+      setIotStatus(`[4/4] Minting VCC to ${farm.farmerName}...`);
+      const vccContract = new ethers.Contract(VCC_ADDRESS, VCC_ABI, oracleWallet);
+      const tx = await vccContract.mint(farm.walletAddress, 1, greenfieldURI);
+      await tx.wait();
+
+      // Log to Terminal
+      const recentTxs = JSON.parse(localStorage.getItem('credit_txs') || '[]');
+      recentTxs.unshift({
+        timestamp: new Date().toLocaleTimeString(),
+        event: 'VCC_MINTED',
+        project: `${farm.commodity} Farm — ${farm.farmerName}`,
+        value: `1 VCC → ${farm.walletAddress.slice(0,6)}...${farm.walletAddress.slice(-4)}`,
+        txHash: tx.hash,
+        status: 'verified'
+      });
+      localStorage.setItem('credit_txs', JSON.stringify(recentTxs));
+
+      // Update marketplace cache
+      const farmsCache = JSON.parse(localStorage.getItem(FARMS_CACHE_KEY) || '[]');
+      const idx = farmsCache.findIndex((f: any) => f.farmerId === farm.farmerId);
+      if (idx >= 0) farmsCache[idx].greenfieldURI = greenfieldURI;
+      localStorage.setItem(FARMS_CACHE_KEY, JSON.stringify(farmsCache));
+
+      setIotStatus('');
+      setSuccessModalMsg({
+        title: 'dMRV Pipeline Complete!',
+        body: `IoT sensor data from your ${farm.commodity} farm has been anchored to BNB Greenfield and 1 VCC carbon credit has been minted to your wallet.\n\nGreenfield: ${greenfieldURI}\nTx: ${tx.hash}\n\nThis credit is now live on the Carbon Market for investors.`
+      });
+      setShowSuccessModal(true);
+    } catch (err: any) {
+      console.error(err);
+      setIotStatus('');
+      alert('IoT simulation failed: ' + (err.reason || err.message));
+    }
+  };
 
   const registerFarm = async () => {
     if (!formName || !formArea || !formYield) {
@@ -300,6 +361,39 @@ const FarmerPortal: React.FC = () => {
           </div>
         </BentoCard>
       </section>
+
+      {/* dMRV: Simulate IoT Sensor Data Injection */}
+      {farms.length > 0 && (
+        <section className="section" style={{ paddingTop: 0, paddingBottom: 20 }}>
+          <BentoCard accent="emerald" delay={0}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: 4 }}>dMRV Pipeline — Simulate IoT Data Injection</h3>
+                <p style={{ fontSize: 12, color: 'var(--color-slate-60)', lineHeight: 1.5 }}>
+                  Trigger the Oracle to collect sensor data, anchor it to BNB Greenfield, and mint a VCC carbon credit to your wallet.
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {farms.length > 1 && (
+                  <select
+                    className="filter-select"
+                    value={iotFarmIndex}
+                    onChange={e => setIotFarmIndex(Number(e.target.value))}
+                    style={{ minWidth: 200 }}
+                  >
+                    {farms.map((f, i) => (
+                      <option key={i} value={i}>{f.commodity} — {f.farmerName}</option>
+                    ))}
+                  </select>
+                )}
+                <button className="btn-protocol" onClick={simulateIoT} disabled={!!iotStatus} style={{ whiteSpace: 'nowrap' }}>
+                  {iotStatus || '⚡ Simulate IoT Data'}
+                </button>
+              </div>
+            </div>
+          </BentoCard>
+        </section>
+      )}
 
       {/* Registered Farms List */}
       <section className="section" style={{ paddingTop: 0, paddingBottom: 20 }}>
