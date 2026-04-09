@@ -6,7 +6,6 @@ import Layout from '../components/Layout';
 import BentoCard from '../components/BentoCard';
 import ContractHash from '../components/ContractHash';
 import { acfcListings, ACFCListing } from '../data/mockTokens';
-import { fetchOnChainFarms } from './FarmerPortal';
 
 const TREASURY_ADDRESS = "0xeA97dF87E6c7F68C9f95A69dA79E19B834823F25";
 
@@ -62,33 +61,36 @@ const ACFCMarket: React.FC = () => {
     }
   };
 
-  // Pull farmer-registered farms from the REAL blockchain contract
+  // Pull farmer-registered farms from local cache (instant)
   const [farmerListings, setFarmerListings] = useState<ACFCListing[]>([]);
   useEffect(() => {
-    const syncFarms = async () => {
-      const farms = await fetchOnChainFarms();
-      const converted: ACFCListing[] = farms.map((f, i) => ({
-        id: `ACFC-LIVE-${String(i + 1).padStart(3, '0')}`,
-        farmerId: f.farmerId,
-        commodity: f.commodity,
-        region: f.location,
-        expectedYield: f.expectedYield,
-        yieldTons: parseFloat(f.expectedYield) || 10,
-        discount: 15,
-        settlementDate: 'DEC 2026',
-        oracleConfidence: 93.0 + (i * 1.2),
-        investmentAmount: Math.round(parseFloat(f.totalArea) * 500) || 5000,
-        riskTier: 'Medium' as const,
-        contractHash: f.contractHash,
-        status: 'active' as const,
-        insuranceCovered: true,
-        historicalYields: [8, 9.2, 10.1, 8.8, 11.2, 9.7],
-        description: `Live on-chain forward contract from ${f.farmerName} — ${f.commodity} via ${f.methodology} in ${f.location}. Greenfield: ${f.greenfieldURI || 'pending'}`,
-      }));
-      setFarmerListings(converted);
+    const syncFarms = () => {
+      try {
+        const farms = JSON.parse(localStorage.getItem('credit_farms_cache') || '[]');
+        if (farms.length === 0) return;
+        const converted: ACFCListing[] = farms.map((f: any, i: number) => ({
+          id: `ACFC-LIVE-${String(i + 1).padStart(3, '0')}`,
+          farmerId: f.farmerId,
+          commodity: f.commodity,
+          region: f.location,
+          expectedYield: f.expectedYield,
+          yieldTons: parseFloat(f.expectedYield) || 10,
+          discount: 15,
+          settlementDate: 'DEC 2026',
+          oracleConfidence: 93.0 + (i * 1.2),
+          investmentAmount: Math.round(parseFloat(f.totalArea) * 500) || 5000,
+          riskTier: 'Medium' as const,
+          contractHash: f.contractHash,
+          status: 'active' as const,
+          insuranceCovered: true,
+          historicalYields: [8, 9.2, 10.1, 8.8, 11.2, 9.7],
+          description: `Live on-chain forward contract from ${f.farmerName} — ${f.commodity} via ${f.methodology} in ${f.location}. Greenfield: ${f.greenfieldURI || 'pending'}`,
+        }));
+        setFarmerListings(converted);
+      } catch (e) { console.warn('Cache read error', e); }
     };
     syncFarms();
-    const interval = setInterval(syncFarms, 10000);
+    const interval = setInterval(syncFarms, 2000);
     return () => clearInterval(interval);
   }, []);
 

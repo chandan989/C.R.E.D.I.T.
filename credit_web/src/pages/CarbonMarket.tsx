@@ -6,7 +6,6 @@ import BentoCard from '../components/BentoCard';
 import ContractHash from '../components/ContractHash';
 import ProgressRhombus from '../components/ProgressRhombus';
 import { vccListings, VCCListing } from '../data/mockTokens';
-import { fetchOnChainFarms } from './FarmerPortal';
 
 const TREASURY_ADDRESS = "0xeA97dF87E6c7F68C9f95A69dA79E19B834823F25";
 
@@ -68,32 +67,35 @@ const CarbonMarket: React.FC = () => {
   };
 
 
-  // Pull farmer-registered farms from the REAL blockchain contract
+  // Pull farmer-registered farms from local cache (instant) backed by on-chain data
   const [farmerVCCs, setFarmerVCCs] = useState<VCCListing[]>([]);
   useEffect(() => {
-    const syncFarms = async () => {
-      const farms = await fetchOnChainFarms();
-      const converted: VCCListing[] = farms.map((f, i) => ({
-        id: `VCC-LIVE-${String(i + 1).padStart(3, '0')}`,
-        projectName: `${f.commodity} Carbon Offset — ${f.farmerName}`,
-        region: f.location,
-        methodology: f.methodology,
-        tons: Math.round(parseFloat(f.totalArea) * 5) || 50,
-        pricePerTon: 14.50 + (i * 0.8),
-        status: 'on-sale' as const,
-        contractHash: f.contractHash,
-        vintage: 2026,
-        totalArea: f.totalArea,
-        co2PerHectare: 5.8,
-        greenfieldLink: f.greenfieldURI || `gf://credit-farms/${f.farmerId}/`,
-        description: `Live on-chain carbon credits from ${f.farmerName}'s ${f.commodity} farm in ${f.location}. Verified via ${f.methodology}. Greenfield: ${f.greenfieldURI || 'pending'}`,
-        verificationTier: 4,
-        totalTiers: 5,
-      }));
-      setFarmerVCCs(converted);
+    const syncFarms = () => {
+      try {
+        const farms = JSON.parse(localStorage.getItem('credit_farms_cache') || '[]');
+        if (farms.length === 0) return;
+        const converted: VCCListing[] = farms.map((f: any, i: number) => ({
+          id: `VCC-LIVE-${String(i + 1).padStart(3, '0')}`,
+          projectName: `${f.commodity} Carbon Offset — ${f.farmerName}`,
+          region: f.location,
+          methodology: f.methodology,
+          tons: Math.round(parseFloat(f.totalArea) * 5) || 50,
+          pricePerTon: 14.50 + (i * 0.8),
+          status: 'on-sale' as const,
+          contractHash: f.contractHash,
+          vintage: 2026,
+          totalArea: f.totalArea,
+          co2PerHectare: 5.8,
+          greenfieldLink: f.greenfieldURI || `gf://credit-farms/${f.farmerId}/`,
+          description: `Live on-chain carbon credits from ${f.farmerName}'s ${f.commodity} farm in ${f.location}. Verified via ${f.methodology}. Greenfield: ${f.greenfieldURI || 'pending'}`,
+          verificationTier: 4,
+          totalTiers: 5,
+        }));
+        setFarmerVCCs(converted);
+      } catch (e) { console.warn('Cache read error', e); }
     };
     syncFarms();
-    const interval = setInterval(syncFarms, 10000);
+    const interval = setInterval(syncFarms, 2000); // Fast poll from cache
     return () => clearInterval(interval);
   }, []);
 
