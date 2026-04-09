@@ -41,7 +41,26 @@ export interface OnChainFarm {
   farmIndex: number;
 }
 
-// ===== SHARED FUNCTION: Fetch all farms from the real smart contract =====
+// ===== SHARED: Fetch farms from blockchain + localStorage cache =====
+const FARMS_CACHE_KEY = 'credit_farms_cache';
+
+// Write a single farm to the local cache (called after registration for instant display)
+export const cacheFarmLocally = (farm: OnChainFarm) => {
+  const cached = JSON.parse(localStorage.getItem(FARMS_CACHE_KEY) || '[]');
+  // Avoid duplicates
+  const exists = cached.find((f: OnChainFarm) => f.farmerId === farm.farmerId);
+  if (!exists) {
+    cached.push(farm);
+    localStorage.setItem(FARMS_CACHE_KEY, JSON.stringify(cached));
+  }
+};
+
+// Read cached farms from localStorage
+const getCachedFarms = (): OnChainFarm[] => {
+  try { return JSON.parse(localStorage.getItem(FARMS_CACHE_KEY) || '[]'); }
+  catch { return []; }
+};
+
 export const fetchOnChainFarms = async (): Promise<OnChainFarm[]> => {
   try {
     const provider = new ethers.JsonRpcProvider(BSC_RPC);
@@ -67,10 +86,15 @@ export const fetchOnChainFarms = async (): Promise<OnChainFarm[]> => {
         farmIndex: i,
       });
     }
+    // Cache successful result to localStorage
+    if (results.length > 0) {
+      localStorage.setItem(FARMS_CACHE_KEY, JSON.stringify(results));
+    }
     return results;
   } catch (err) {
-    console.warn("Failed to fetch on-chain farms:", err);
-    return [];
+    console.warn("RPC failed, using cached farms:", err);
+    // Fallback: return locally cached farms
+    return getCachedFarms();
   }
 };
 
@@ -156,6 +180,23 @@ const FarmerPortal: React.FC = () => {
         status: 'verified'
       });
       localStorage.setItem('credit_txs', JSON.stringify(recentTxs));
+
+      // Cache farm locally for instant marketplace display
+      const addr = await signer.getAddress();
+      cacheFarmLocally({
+        farmerId: farmId,
+        farmerName: formName,
+        location: formLocation,
+        totalArea: `${formArea} Hectares`,
+        methodology: formMethodology,
+        commodity: formCommodity,
+        expectedYield: `${formYield} TONS`,
+        greenfieldURI: greenfieldURI,
+        walletAddress: addr,
+        registeredAt: Math.floor(Date.now() / 1000),
+        contractHash: FARM_REGISTRY_ADDRESS,
+        farmIndex: farmIndex,
+      });
 
       setRegStatus('');
       setShowRegisterForm(false);
