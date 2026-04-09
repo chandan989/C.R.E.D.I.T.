@@ -19,6 +19,7 @@ const CarbonMarket: React.FC = () => {
   const [showCount, setShowCount] = useState(9);
   // Custom Premium UI state for transactions
   const [txStatus, setTxStatus] = useState<string>('');
+  const [activeTxId, setActiveTxId] = useState<string>('');
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
@@ -31,6 +32,7 @@ const CarbonMarket: React.FC = () => {
     }
     
     try {
+      setActiveTxId(item.id);
       setTxStatus('Awaiting Signature...');
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
@@ -58,10 +60,12 @@ const CarbonMarket: React.FC = () => {
       localStorage.setItem('credit_txs', JSON.stringify(recentTxs));
       
       setTxStatus('');
+      setActiveTxId('');
       setShowSuccessModal(true);
     } catch (err: any) {
       console.error(err);
       setTxStatus('');
+      setActiveTxId('');
       setErrorMsg("Transaction Failed: " + (err.reason || err.message));
     }
   };
@@ -163,7 +167,7 @@ const CarbonMarket: React.FC = () => {
               <ContractHash hash={item.contractHash} />
               <div style={{ marginTop: 16 }}>
                 <button className="btn-protocol btn-sm" onClick={(e) => acquireCredit(e, item)} disabled={!!txStatus}>
-                  {txStatus || 'Acquire Credit'}
+                  {activeTxId === item.id ? txStatus : 'Acquire Credit'}
                 </button>
               </div>
             </BentoCard>
@@ -207,7 +211,7 @@ const CarbonMarket: React.FC = () => {
 
             <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
               <button className="btn-protocol" onClick={(e) => acquireCredit(e, selected)} disabled={!!txStatus}>
-                {txStatus || 'Acquire Credit'}
+                {activeTxId === selected.id ? txStatus : 'Acquire Credit'}
               </button>
               <button className="btn-secondary">Audit on Greenfield</button>
             </div>

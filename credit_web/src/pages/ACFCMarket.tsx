@@ -15,6 +15,7 @@ const ACFCMarket: React.FC = () => {
   const [riskTier, setRiskTier] = useState('all');
   const [selected, setSelected] = useState<ACFCListing | null>(null);
   const [txStatus, setTxStatus] = useState<string>('');
+  const [activeTxId, setActiveTxId] = useState<string>('');
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
@@ -27,6 +28,7 @@ const ACFCMarket: React.FC = () => {
     }
     
     try {
+      setActiveTxId(item.id);
       setTxStatus('Awaiting Signature...');
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
@@ -53,10 +55,12 @@ const ACFCMarket: React.FC = () => {
       localStorage.setItem('credit_txs', JSON.stringify(recentTxs));
       
       setTxStatus('');
+      setActiveTxId('');
       setShowSuccessModal(true);
     } catch (err: any) {
       console.error(err);
       setTxStatus('');
+      setActiveTxId('');
       setErrorMsg("Transaction Failed: " + (err.reason || err.message));
     }
   };
@@ -154,7 +158,7 @@ const ACFCMarket: React.FC = () => {
 
               <div style={{ display: 'flex', gap: 8 }}>
                 <button className="btn-protocol btn-sm" onClick={(e) => investInContract(e, item)} disabled={!!txStatus}>
-                  {txStatus || 'Invest in Contract'}
+                  {activeTxId === item.id ? txStatus : 'Invest in Contract'}
                 </button>
                 <button className="btn-ghost" onClick={e => { e.stopPropagation(); setSelected(item); }}>View Terms</button>
               </div>
@@ -206,7 +210,7 @@ const ACFCMarket: React.FC = () => {
 
             <div style={{ display: 'flex', gap: 12 }}>
               <button className="btn-protocol" onClick={(e) => investInContract(e, selected as ACFCListing)} disabled={!!txStatus}>
-                {txStatus || 'Invest in Contract'}
+                {activeTxId === selected.id ? txStatus : 'Invest in Contract'}
               </button>
               <button className="btn-secondary">Download Term Sheet</button>
             </div>
