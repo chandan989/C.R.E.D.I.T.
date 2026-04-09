@@ -125,9 +125,6 @@ const Header: React.FC = () => {
       {role === 'farmer' && (
         <NavLink to="/farmer" className={`site-nav__link ${isActive('/farmer') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>My Farm</NavLink>
       )}
-      {role === 'farmer' && (
-        <NavLink to="/oracle" className={`site-nav__link ${isActive('/oracle') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Oracle</NavLink>
-      )}
       {/* Common */}
       <NavLink to="/docs" className={`site-nav__link ${isActive('/docs') ? 'site-nav__link--active' : ''}`} onClick={() => setMobileOpen(false)}>Docs</NavLink>
     </>
